@@ -421,10 +421,10 @@ class MotionPlanner():
         # Take a look at the initial dataframes
         print('--------------------------------')
         print('Unvisited nodes')
-        print(unvisited.head())
+        print(unvisited)
         print('s--------------------------------')
         print('Visited nodes')
-        print(visited.head())
+        print(visited)
         print('--------------------------------')
         print('Running Dijkstra')
         
@@ -462,10 +462,10 @@ class MotionPlanner():
             
         print('--------------------------------')
         print('Unvisited nodes')
-        print(unvisited.head())
+        print(unvisited)
         print('--------------------------------')
         print('Visited nodes')
-        print(visited.head())
+        print(visited)
         print('--------------------------------')
         
         optimal_cost = visited.loc[[str(goal_node)], ['Cost']].values[0][0]  # Optimal cost (float)
