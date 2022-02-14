@@ -1,0 +1,8 @@
+prefix=/home/de3robotics/Desktop/DE3Robotics/install
+
+Name: deniro_gazebo
+Description: Description of deniro_gazebo
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

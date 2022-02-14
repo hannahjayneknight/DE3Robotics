@@ -1,0 +1,583 @@
+<?xml version="1.0"?>
+<robot name="DESE3R" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<xacro:property name="link_length_0_init" value="1"/>
+<xacro:property name="link_length_1_init" value="1"/>
+<xacro:property name="link_length_2_init" value="1"/>
+
+<xacro:property name="link_radius" value="0.05"/>
+<xacro:property name="link_mass" value="0.5"/>
+<xacro:property name="base_height" value="0.1"/>
+<xacro:property name="base_side" value="0.6"/>
+<xacro:property name="case_radius" value="${link_radius}"/>
+<xacro:property name="case_length" value="${case_radius*2}"/>
+<xacro:property name="ee_length" value="0.04"/>
+<xacro:property name="ee_side" value="0.02"/>
+
+<xacro:property name="ee_mass" value="30"/>
+
+<xacro:property name="link_length_0" value="${link_length_0_init-case_length}"/>
+<xacro:property name="link_length_1" value="${link_length_1_init-case_radius}"/>
+<xacro:property name="link_length_2" value="${link_length_2_init-case_radius}"/>
+
+  <link
+    name="link_base">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1e06" />
+      <inertia
+        ixx="1e06"
+        ixy="0"
+        ixz="0"
+        iyy="1e06"
+        iyz="0"
+        izz="1e06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="${base_side} ${base_side} ${base_height}"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.7 0.7 0.7 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <box size="${base_side} ${base_side} ${base_height}"/>
+      </geometry>
+    </collision>
+  </link>
+
+<!-- ********Joint0******-->
+  <joint
+    name="joint_0"
+    type="revolute">
+    <origin
+      xyz="0 0 ${base_height/2}"
+      rpy="0 0 0" />
+    <parent
+      link="link_base" />
+    <child
+      link="casing_0" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- ********CASING0******-->
+  <link
+    name="casing_0">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1e-03" />
+      <inertia
+        ixx="1e-03"
+        ixy="0"
+        ixz="0"
+        iyy="1e-03"
+        iyz="0"
+        izz="1e-03" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+         <cylinder length="${case_length}" radius="${case_radius}"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <cylinder length="${case_length}" radius="${case_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="casing_0">
+       <material>Gazebo/Red</material>
+  </gazebo>
+<!-- ********Fixed connection0******-->
+  <joint
+    name="fixed_joint_0"
+    type="fixed">
+    <origin
+      xyz="0 0 ${case_length/2}"
+      rpy="0 0 0" />
+    <parent
+      link="casing_0"/>
+    <child
+      link="link_0" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- ********LINK0******-->
+  <link
+    name="link_0">
+    <inertial>
+      <origin
+        xyz="0 0 ${link_length_0/2}"
+        rpy="0 0 0" />
+      <mass
+        value="${link_mass}" />
+      <inertia
+        ixx="1"
+        ixy="0"
+        ixz="0"
+        iyy="1"
+        iyz="0"
+        izz="1" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 ${link_length_0/2}"
+        rpy="0 0 0" />
+      <geometry>
+        <cylinder length="${link_length_0}" radius="${link_radius}"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.7 0.7 0.7 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 ${link_length_0/2}"
+        rpy="0 0 0" />
+      <geometry>
+        <cylinder length="${link_length_0}" radius="${link_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+<!-- ********Joint1******-->
+  <joint
+    name="joint_1"
+    type="revolute">
+    <origin
+      xyz="0 0 ${link_length_0}"
+      rpy="1.5708 0 0" />
+    <parent
+      link="link_0"/>
+    <child
+      link="casing_1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- ********CASING1******-->
+  <link
+    name="casing_1">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1e-03" />
+      <inertia
+        ixx="1e-03"
+        ixy="0"
+        ixz="0"
+        iyy="1e-03"
+        iyz="0"
+        izz="1e-03" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+         <cylinder length="${case_length}" radius="${case_radius}"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <cylinder length="${case_length}" radius="${case_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="casing_1">
+       <material>Gazebo/Red</material>
+  </gazebo>
+<!-- ********Fixed connection1******-->
+  <joint
+    name="fixed_joint_1"
+    type="fixed">
+    <origin
+      xyz="${case_radius} 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="casing_1"/>
+    <child
+      link="link_1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- ********LINK1******-->
+  <link
+    name="link_1">
+    <inertial>
+      <origin
+        xyz="${link_length_1/2} 0 0"
+        rpy="0 1.5708 0" />
+      <mass
+        value="${link_mass}" />
+      <inertia
+        ixx="1"
+        ixy="0"
+        ixz="0"
+        iyy="1"
+        iyz="0"
+        izz="1" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="${link_length_1/2} 0 0"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <cylinder length="${link_length_1}" radius="${link_radius}"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.7 0.7 0.7 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="${link_length_1/2} 0 0"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <cylinder length="${link_length_1}" radius="${link_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+<!-- ********Joint2******-->
+  <joint
+    name="joint_2"
+    type="revolute">
+    <origin
+      xyz="${link_length_1} 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="link_1"/>
+    <child
+      link="casing_2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- ********CASING2******-->
+  <link
+    name="casing_2">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="1e-03" />
+      <inertia
+        ixx="1e-03"
+        ixy="0"
+        ixz="0"
+        iyy="1e-03"
+        iyz="0"
+        izz="1e-03" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+         <cylinder length="${case_length}" radius="${case_radius}"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <cylinder length="${case_length}" radius="${case_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="casing_2">
+       <material>Gazebo/Red</material>
+  </gazebo>
+<!-- ********Fixed connection2******-->
+  <joint
+    name="fixed_joint_2"
+    type="fixed">
+    <origin
+      xyz="${case_radius} 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="casing_2"/>
+    <child
+      link="link_2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- *****Link 2*****-->
+  <link
+    name="link_2">
+    <inertial>
+      <origin
+        xyz="${link_length_2/2} 0 0"
+        rpy="0 1.5708 0" />
+      <mass
+        value="${link_mass}" />
+      <inertia
+        ixx="1"
+        ixy="0"
+        ixz="0"
+        iyy="1"
+        iyz="0"
+        izz="1" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="${link_length_2/2} 0 0"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <cylinder length="${link_length_2}" radius="${link_radius}"/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.7 0.7 0.7 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="${link_length_2/2} 0 0"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <cylinder length="${link_length_2}" radius="${link_radius}"/>
+      </geometry>
+    </collision>
+  </link>
+<!-- ********Fixed connection ee 1******-->
+  <joint
+    name="fixed_joint_ee_1"
+    type="fixed">
+    <origin
+      xyz="${link_length_2} 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="link_2"/>
+    <child
+      link="ee_link_1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- *****ee Link 1*****-->
+  <link
+    name="ee_link_1">
+    <inertial>
+      <origin
+        xyz="${ee_length/2} 0.0 ${link_radius}"
+        rpy="0 1.5708 0" />
+      <mass
+        value="${ee_mass/2}" />
+      <inertia
+        ixx="1"
+        ixy="0"
+        ixz="0"
+        iyy="1"
+        iyz="0"
+        izz="1" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="${ee_length/2} 0.0 ${link_radius}"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <box size="${ee_side} ${ee_side} ${ee_length} "/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="${ee_length/2} 0.0 ${link_radius}"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <box size="${ee_side} ${ee_side} ${ee_length} "/>
+      </geometry>
+    </collision>
+  </link>
+<!-- ********Fixed connection ee 2******-->
+  <joint
+    name="fixed_joint_ee_2"
+    type="fixed">
+    <origin
+      xyz="${link_length_2} 0 0"
+      rpy="0 0 0" />
+    <parent
+      link="link_2"/>
+    <child
+      link="ee_link_2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-3.1415"
+      upper="3.1415"
+      effort="1e10"
+      velocity="1e10" />
+  </joint>
+<!-- *****ee Link 2*****-->
+  <link
+    name="ee_link_2">
+    <inertial>
+      <origin
+        xyz="${ee_length/2} 0 ${-link_radius}"
+        rpy="0 1.5708 0" />
+      <mass
+        value="${ee_mass/2}" />
+      <inertia
+        ixx="1"
+        ixy="0"
+        ixz="0"
+        iyy="1"
+        iyz="0"
+        izz="1" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="${ee_length/2} 0 ${-link_radius}"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <box size="${ee_side} ${ee_side} ${ee_length} "/>
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0 0 0 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="${ee_length/2} 0 ${-link_radius}"
+        rpy="0 1.5708 0" />
+      <geometry>
+        <box size="${ee_side} ${ee_side} ${ee_length} "/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="ee_link_2">
+       <material>Gazebo/Black</material>
+  </gazebo>
+  <gazebo reference="ee_link_1">
+       <material>Gazebo/Black</material>
+  </gazebo>
+<!-- ****************************************************** -->
+<!-- *********************TRANSMISSIONS********************************* -->
+<!-- **** Trans 0***** -->
+<transmission name="trans_joint_0">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_0">
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="motor_joint_0">
+    <mechanicalReduction>1</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+</transmission>
+<!-- **** Trans 1***** -->
+<transmission name="trans_joint_1">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_1">
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="motor_joint_1">
+    <mechanicalReduction>1</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+</transmission>
+<!-- **** Trans 2***** -->
+<transmission name="trans_joint_2">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="joint_2">
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="motor_joint_2">
+    <mechanicalReduction>1</mechanicalReduction>
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </actuator>
+</transmission>
+<!-- **** GAZEBO ROS PLUGIN***** -->
+<gazebo>
+  <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+    <robotNamespace>/DESE3R</robotNamespace>
+  </plugin>
+</gazebo>
+</robot>
+			
+

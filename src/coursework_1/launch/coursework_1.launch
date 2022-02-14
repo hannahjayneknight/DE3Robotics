@@ -1,0 +1,25 @@
+<launch>
+
+  <param name="robot_description"
+    command="$(find xacro)/xacro --inorder '$(find coursework_1)/urdf/robot_model_gazebo.xacro'" />
+
+
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    args="-urdf -model DESE3R -param robot_description"/>
+
+<rosparam file="$(find coursework_1)/config/controller_settings.yaml" command="load"/>
+
+  <!-- load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+	output="screen" ns="/DESE3R" args="joint_state_controller
+					  joint_0_position_controller
+					  joint_1_position_controller
+					  joint_2_position_controller"/>
+
+  <!-- convert joint states to TF transforms for rviz, etc -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+	respawn="false" output="screen">
+    <remap from="/joint_states" to="/coursework1/joint_states" />
+  </node>
+
+</launch>

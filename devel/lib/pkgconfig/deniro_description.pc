@@ -1,0 +1,8 @@
+prefix=/home/de3robotics/Desktop/DE3Robotics/devel
+
+Name: deniro_description
+Description: Description of deniro_description
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

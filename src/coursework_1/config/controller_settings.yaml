@@ -1,0 +1,20 @@
+
+DESE3R:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100  
+  
+  # Position Controllers ---------------------------------------
+  joint_0_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: joint_0
+    pid: {p: 25600 , i: 0, d: 1600}
+  joint_1_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: joint_1
+    pid: {p: 25600 , i: 0, d: 1600}
+  joint_2_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: joint_2
+    pid: {p: 25600 , i: 0, d: 1600}

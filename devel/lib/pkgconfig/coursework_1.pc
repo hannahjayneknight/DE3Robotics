@@ -1,0 +1,8 @@
+prefix=/home/de3robotics/Desktop/DE3Robotics/devel
+
+Name: coursework_1
+Description: Description of coursework_1
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

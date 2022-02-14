@@ -1,0 +1,8 @@
+prefix=/home/de3robotics/Desktop/DE3Robotics/install
+
+Name: baxter_sim_controllers
+Description: Description of baxter_sim_controllers
+Version: 1.2.12
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib -lbaxter_sim_controllers
+Requires: controller_interface control_toolbox effort_controllers baxter_core_msgs
