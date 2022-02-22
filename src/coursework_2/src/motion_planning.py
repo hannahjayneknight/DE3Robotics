@@ -182,7 +182,7 @@ class MotionPlanner():
             self.waypoint_index += 1    # increase waypoint index
             
         # If we have reached the last waypoint, stop
-        if self.waypoint_index > self.waypoints.shape[0]:
+        if self.waypoint_index >= self.waypoints.shape[0]:
             vref = np.array([0, 0])
             complete = True
         return vref, complete
