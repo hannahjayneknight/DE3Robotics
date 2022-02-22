@@ -68,8 +68,7 @@ def set_vref_publisher(): # publisher for DENIRO odometry
     # when the "odom" message is received, the deniro_odom_callback() is invoked with the message as the first argument
     return pub
 
-####################################################################### NEED TO COMMENT FUNCTION!!!
-def cmd_vel_2_twist(v_forward, omega):
+def cmd_vel_2_twist(v_forward, omega): # decoding the Twist() message from ROS. See documentation: http://docs.ros.org/en/lunar/api/geometry_msgs/html/msg/Twist.html
     twist_msg = Twist()
     twist_msg.linear.x = v_forward
     twist_msg.linear.y = 0
@@ -92,10 +91,10 @@ class MotionPlanner():
         # vref is given in cartesian coordinates (v_x, v_y)
         # DE NIRO is driven in linear and angular coordinates (v_forward, omega)
         #print("px:\t", deniro_position[0], ",\tpy:\t", deniro_position[1])
-        print("gx:\t", goal[0], ",\tgy:\t", goal[1])
-        print("vx:\t", vref[0], ",\tvy:\t", vref[1])
+        print("gx:\t", goal[0], ",\tgy:\t", goal[1]) # printing the goal x and y 
+        print("vx:\t", vref[0], ",\tvy:\t", vref[1]) # printing the reference velocity x and y
         #print("deniro path:\t", deniro_path)
-        v_heading = atan2(vref[1], vref[0])
+        v_heading = atan2(vref[1], vref[0]) # velocity angle
         heading_error = deniro_heading - v_heading
         omega = 1 * heading_error
         # only drive forward if DE NIRO is pointing in the right direction
