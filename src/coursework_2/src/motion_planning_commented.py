@@ -373,22 +373,21 @@ class MotionPlanner():
         return False    # if it's got through every pixel as hasn't returned yet, return False
     
     def dijkstra(self, graph, edges):
-        ############################################################### TASK F
-        goal_node = goal
-        nodes = list(graph.keys())
+        ############################################################### REPORT SECTION 5.3.1
+        goal_node = goal # the goal node
+        nodes = list(graph.keys()) # all the other nodes in the PRM graph generated in create_graph()
+
+        # initial_cost been set to a very high number 
+        initial_cost = 1000000
         
-        # Create a dataframe of unvisited nodes
-        # Initialise each cost to a very high number
-        initial_cost = 1000000  # Set this to a suitable value
-        
-        unvisited = pd.DataFrame({'Node': nodes, 'Cost': [initial_cost for node in nodes], 'Previous': ['' for node in nodes]})
-        unvisited.set_index('Node', inplace=True)
+        unvisited = pd.DataFrame({'Node': nodes, 'Cost': [initial_cost for node in nodes], 'Previous': ['' for node in nodes]}) # create a dataframe of unvisited nodes
+        unvisited.set_index('Node', inplace=True) # setting Node to be the index 
         # Set the first node's cost to zero
-        unvisited.loc[[str(initial_position)], ['Cost']] = 0.0
+        unvisited.loc[[str(initial_position)], ['Cost']] = 0.0 # setting the cost of the starting node to be 0
         
         # Create a dataframe of visited nodes (it's empty to begin with)
         visited = pd.DataFrame({'Node':[''], 'Cost':[0.0], 'Previous':['']})
-        visited.set_index('Node', inplace=True)
+        visited.set_index('Node', inplace=True) # setting Node to be the index 
         
         # Take a look at the initial dataframes
         print('--------------------------------')
@@ -403,18 +402,16 @@ class MotionPlanner():
         # Dijkstra's algorithm!
         # Keep running until we get to the goal node
         while str(goal_node) not in visited.index.values:
-            
-            # Go to the node that is the minimum distance from the starting node
-            current_node = unvisited[unvisited['Cost']==unvisited['Cost'].min()]
+
+            current_node = unvisited[unvisited['Cost']==unvisited['Cost'].min()] # Go to the node that is the minimum distance from the starting node
             current_node_name = current_node.index.values[0]    # the node's name (string)
             current_cost = current_node['Cost'].values[0]       # the distance from the starting node to this node (float)
             current_tree = current_node['Previous'].values[0]   # a list of the nodes visited on the way to this one (string)
             
             connected_nodes = graph[current_node.index.values[0]]   # get all of the connected nodes to the current node (array)
             connected_edges = edges[current_node.index.values[0]]   # get the distance from each connected node to the current node   
-            
-            # Loop through all of the nodes connected to the current node
-            for next_node_name, edge_cost in zip(connected_nodes, connected_edges):
+
+            for next_node_name, edge_cost in zip(connected_nodes, connected_edges): # Loop through all of the nodes connected to the current node
                 next_node_name = str(next_node_name)    # the next node's name (string)
                 
                 if next_node_name not in visited.index.values:  # if we haven't visited this node before
@@ -422,10 +419,9 @@ class MotionPlanner():
                     # update this to calculate the cost of going from the initial node to the next node via the current node
                     next_cost_trial = current_cost + edge_cost # set this to calculate the cost of going from the initial node to the next node via the current node
                     next_cost = unvisited.loc[[next_node_name], ['Cost']].values[0] # the previous best cost we've seen going to the next node
-                    
-                    # if it costs less to go the next node from the current node, update then next node's cost and the path to get there
-                    if next_cost_trial < next_cost:
-                        unvisited.loc[[next_node_name], ['Cost']] = next_cost_trial
+
+                    if next_cost_trial < next_cost: # if it costs less to go the next node from the current node...
+                        unvisited.loc[[next_node_name], ['Cost']] = next_cost_trial # update then next node's cost 
                         unvisited.loc[[next_node_name], ['Previous']] = current_tree + current_node_name    # update the path to get to that node
             
             unvisited.drop(current_node_name, axis=0, inplace=True)     # remove current node from the unvisited list
@@ -440,8 +436,8 @@ class MotionPlanner():
         print(visited)
         print('--------------------------------')
         
-        optimal_cost = visited.loc[[str(goal_node)], ['Cost']].values[0][0]  # Optimal cost (float)
-        optimal_path = visited.loc[[str(goal_node)], ['Previous']].values[0][0]  # Optimal path (string)
+        optimal_cost = visited.loc[[str(goal_node)], ['Cost']].values[0][0]  # Optimal cost (float) == total cost to reach goal node
+        optimal_path = visited.loc[[str(goal_node)], ['Previous']].values[0][0]  # Optimal path (string) == total path to reach goal node
         
         # Convert the optimal path from a string to an actual array of waypoints to travel to
         string_waypoints = optimal_path[1:-1].split('][')
