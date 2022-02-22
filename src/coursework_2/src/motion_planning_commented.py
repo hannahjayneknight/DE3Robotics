@@ -14,12 +14,18 @@ import numpy as np
 import rospy
 import sys
 
+
+# NB: 
+# map is -10.1 -> 10.1, but with 16 scale, world is -160.16 -> 160.16
+# centre of map is very most left bottom of cmap
+# centre of world is centre of cmap
+
+
 # initializing the robot
 deniro_position = np.array([0, -6.0]) # starting node of DENIRO to add to deniro_path
 deniro_heading = 0.0 # heading angle
 deniro_linear_vel = 0.0 # linear velocity of DENIRO
 deniro_angular_vel = 0.0 # angular velocity of DENIRO
-deniro_path = [] # array to collect all the points of DENIRO on his path
 
 map = generate_map() # generate 
 
@@ -62,7 +68,7 @@ def set_vref_publisher(): # publisher for DENIRO odometry
     # when the "odom" message is received, the deniro_odom_callback() is invoked with the message as the first argument
     return pub
 
-
+####################################################################### NEED TO COMMENT FUNCTION!!!
 def cmd_vel_2_twist(v_forward, omega):
     twist_msg = Twist()
     twist_msg.linear.x = v_forward
@@ -82,7 +88,7 @@ class MotionPlanner():
         self.xscale, self.yscale = scale
         self.goal = goal
     
-    def send_velocity(self, vref):
+    def send_velocity(self, vref): ####################################################################### NEED TO COMMENT FUNCTION!!!
         # vref is given in cartesian coordinates (v_x, v_y)
         # DE NIRO is driven in linear and angular coordinates (v_forward, omega)
         #print("px:\t", deniro_position[0], ",\tpy:\t", deniro_position[1])
@@ -103,69 +109,63 @@ class MotionPlanner():
         
         self.vref_publisher.publish(twist_msg)
         
-    def map_position(self, world_position):
-        world_position = world_position.reshape((-1, 2))
-        map_x = np.rint(world_position[:, 0] * self.xscale + self.pixel_map.shape[0] / 2)
-        map_y = np.rint(world_position[:, 1] * self.yscale + self.pixel_map.shape[1] / 2)
-        map_position = np.vstack((map_x, map_y)).T
+    def map_position(self, world_position): # converts world position to map position
+        world_position = world_position.reshape((-1, 2)) # reshaping the map to get an array of one or more points
+        map_x = np.rint(world_position[:, 0] * self.xscale + self.pixel_map.shape[0] / 2) # scaling and recentering x coordinates
+        map_y = np.rint(world_position[:, 1] * self.yscale + self.pixel_map.shape[1] / 2) # scaling and recentering y coordinates
+        map_position = np.vstack((map_x, map_y)).T # stacks the modified x and y to build an array for the map
         return map_position
     
-    def world_position(self, map_position):
-        map_position = map_position.reshape((-1, 2))
-        world_x = (map_position[:, 0] - self.pixel_map.shape[0] / 2) / self.xscale
-        world_y = (map_position[:, 1] - self.pixel_map.shape[1] / 2) / self.yscale
-        world_position = np.vstack((world_x, world_y)).T
+    def world_position(self, map_position): # convert map position to world position
+        map_position = map_position.reshape((-1, 2)) # reshaping the map to get an array of one or more points
+        world_x = (map_position[:, 0] - self.pixel_map.shape[0] / 2) / self.xscale # scaling and recentering x coordinates
+        world_y = (map_position[:, 1] - self.pixel_map.shape[1] / 2) / self.yscale # scaling and recentering y coordinates
+        world_position = np.vstack((world_x, world_y)).T # stacks the modified x and y to build an array for the map
         return world_position
     
-    def run_planner(self, planning_algorithm):
-        rate = rospy.Rate(25)
-        while not rospy.is_shutdown():
-            vref, complete = planning_algorithm()
-            self.send_velocity(vref) # while rospy running, wil send velocity
-            deniro_path.append(deniro_position) #appending deniro's position to map later
-            
-            #if len(deniro_path) > 100:
-                #self.plot_map(deniro_path)
+    def run_planner(self, planning_algorithm): # run the chosen planning algorithm
+        rate = rospy.Rate(25) # attempts to keep the loop at 25hz
+        while not rospy.is_shutdown(): # testing for shutdown
+            vref, complete = planning_algorithm() # outputs from planning algorithm function
+            self.send_velocity(vref) # while rospy running, will send velocity
             
             if complete: # if reached the goal
                 print("Completed motion")
-                #self.plot_map(deniro_path)
-                break
-            rate.sleep()
+                break # stop running the planenr
+            rate.sleep() # pause for a little
     
     def setup_waypoints(self):
-        ############################################################### TASK B
-        # Create an array of waypoints for the robot to navigate via to reach the goal
-        waypoints = np.array([[4.3, -1.35],
+        ############################################################### REPORT SECTION 3.1
+        waypoints = np.array([[4.3, -1.35], # an array of waypoints for the robot to navigate via to reach the goal
                               [6.0, -1.35],
-                              [7.8, 4.9]])  # fill this in with your waypoints
-
-        #waypoints = waypoints * self.xscale
+                              [7.8, 4.9]])
         
-        waypoints = np.vstack([initial_position, waypoints, self.goal])
-        pixel_goal = self.map_position(self.goal)
-        pixel_waypoints = self.map_position(waypoints)
+        waypoints = np.vstack([initial_position, waypoints, self.goal]) # combining the initial position, waypoing and goal position in an array
+        pixel_goal = self.map_position(self.goal) # converting goal position from world coordinates to map coordinates 
+        pixel_waypoints = self.map_position(waypoints) # converting waypoints from world coordinates to map coordinates 
         
         print('Waypoints:\n', waypoints)
         print('Waypoints in pixel coordinates:\n', pixel_waypoints)
         
-        distance = 0
-        prevval = [0.0, -6.0]
-        for val in waypoints:
-            vector = np.subtract(val, prevval)
-            distance += np.sqrt( sum( np.power(vector, 2) ) )
-            prevval = val
+        # finding the total distance travelled between this combination of waypoints
+        distance = 0 # initial distance travelled
+        prevval = [0.0, -6.0] # the previous point travelled to by DENIRO 
+        for val in waypoints: # for each point in waypoints
+            vector = np.subtract(val, prevval) # find the vector from the previous point to the current point 
+            distance += np.sqrt( sum( np.power(vector, 2) ) ) # find the magnitude of this vector and add this to distance
+            prevval = val # reset the previous point
             
         print('Distance travelled: ', distance)
         
         # Plotting
-        plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower')
-        plt.scatter(pixel_waypoints[:, 0], pixel_waypoints[:, 1])
-        plt.title(distance)
+        plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower') # plot the map
+        plt.scatter(pixel_waypoints[:, 0], pixel_waypoints[:, 1]) # add the waypoints as scatter points
+        plt.title(distance) # adding the distance travelled as the title
         plt.plot(pixel_waypoints[:, 0], pixel_waypoints[:, 1])
         plt.show()
         
-        self.waypoints = waypoints
+        # Reset the waypoints for normal waypoint navigation
+        self.waypoints = waypoints 
         self.waypoint_index = 0
                     
     
@@ -190,12 +190,12 @@ class MotionPlanner():
             
         # If we have reached the last waypoint, stop
         if self.waypoint_index >= self.waypoints.shape[0]:
-            vref = np.array([0, 0])
+            vref = np.array([0, 0]) # setting velocity to 0 in both directions
             complete = True
         return vref, complete
 
     def potential_field(self):
-        ############################################################### TASK C
+        ############################################################### REPORT SECTION 4
         complete = False
         route = []
         
@@ -207,37 +207,27 @@ class MotionPlanner():
         # unit vector in direction of goal from DE NIRO
         pos_force_direction = goal_vector / distance_to_goal
         
-        # potential function
-        pos_force_magnitude = 1/distance_to_goal **2 # squared term was used for the alternative 'quadratic' policy, for the original one the **2 is removed
-        # tuning parameter
-        K_att = 500.0     # tune this parameter to achieve desired results
+        # potential function for attractive (positive) force (to goal)
+        pos_force_magnitude = 1/distance_to_goal **2 # the squared term improves results described in report section 4.2, for the original approach descibed in section 4.1, remove the **2
+        K_att = 500.0 # this parameter has been tuned to achieve desired results, described in table 2
         
         # positive force
         positive_force = K_att * pos_force_direction * pos_force_magnitude  # normalised positive force
+
+        obstacle_pixel_locations = np.argwhere(self.pixel_map == 1) # find array indices in pixel_map that contain obstacles
+        obstacle_pixel_coordinates = np.array([obstacle_pixel_locations[:, 1], obstacle_pixel_locations[:, 0]]).T # one row for x, one row for y. Reshaped in world_position()
+        obstacle_positions = self.world_position(obstacle_pixel_coordinates) # coordinates of every obstacle pixel converted to world coordinates
         
-        # compute the negative force repelling the robot away from the obstacles
-        obstacle_pixel_locations = np.argwhere(self.pixel_map == 1)
-        # coordinates of every obstacle pixel
-        obstacle_pixel_coordinates = np.array([obstacle_pixel_locations[:, 1], obstacle_pixel_locations[:, 0]]).T
-        # coordinates of every obstacle pixel converted to world coordinates
-        obstacle_positions = self.world_position(obstacle_pixel_coordinates)
-        
-        # vector to each obstacle from DE NIRO
         obstacle_vector = obstacle_positions - deniro_position   # vector from DE NIRO to obstacle
-        # distance to obstacle from DE NIRO
-        distance_to_obstacle = np.linalg.norm(obstacle_vector, axis=1).reshape((-1, 1))  # magnitude of vector
-        # unit vector in direction of obstacle from DE NIRO
-        force_direction = obstacle_vector / distance_to_obstacle   # normalised vector (for direction)
+        distance_to_obstacle = np.linalg.norm(obstacle_vector, axis=1).reshape((-1, 1)) # distance to obstacle from DE NIRO == magnitude of vector
+        force_direction = obstacle_vector / distance_to_obstacle # unit vector in direction of obstacle from DE NIRO == normalised direction vector
         
-        # potential function
-        force_magnitude = -1/distance_to_obstacle **2 # squared term was used for the alternative 'quadratic' policy, for the original one the **2 is removed
-        # tuning parameter
-        K_rep = 350.0     # tune this parameter to achieve desired results
+        # potential function for repulsive (negative) force (to obstacles)
+        force_magnitude = -1/distance_to_obstacle **2 # the squared term improves results described in report section 4.2, for the original approach descibed in section 4.1, remove the **2. 
+        K_rep = 350.0 # this parameter has been tuned to achieve desired results, described in table 2
         
-        # force from an individual obstacle pixel
-        obstacle_force = force_direction * force_magnitude
-        # total negative force on DE NIRO
-        negative_force = K_rep * np.sum(obstacle_force, axis=0) / obstacle_pixel_locations.shape[0]
+        obstacle_force = force_direction * force_magnitude # force from an individual obstacle pixel
+        negative_force = K_rep * np.sum(obstacle_force, axis=0) / obstacle_pixel_locations.shape[0] # total negative force on DE NIRO
         
         
         # Uncomment these lines to visualise the repulsive force from each obstacle pixel
@@ -257,22 +247,9 @@ class MotionPlanner():
         
         # If the goal has been reached, stop
         if distance_to_goal < 0.05:
-            vref = np.array([0, 0])
+            vref = np.array([0, 0]) # setting velocity to 0 in both directions
             complete = True
         return vref, complete
-        
-    #def plot_map(self, points):
-        #points = np.vstack([initial_position, points, self.goal])
-        #pixel_goal = self.map_position(self.goal)
-        #pixel_waypoints = self.map_position(points)
-        #pixel_waypoints = points
-        
-        # Plotting
-        #plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower')
-        #plt.scatter(pixel_waypoints[:, :], pixel_waypoints[:, :])
-        #plt.title(distance)
-        #plt.plot(pixel_waypoints[:, :], pixel_waypoints[:, :])
-        #plt.show()
     
     def generate_random_points(self, N_points):
         ############################################################### TASK D
