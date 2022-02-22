@@ -299,13 +299,12 @@ class MotionPlanner():
         return world_points
     
     def create_graph(self, points):
-        ############################################################### TASK E i
-        # Choose your minimum and maximum distances to produce a suitable graph
+        ############################################################### REPORT SECTION 5.2
+        # minimum and maximum distances between nodes have been tuned, described in section 5.2.1 
         mindist = 1.0
         maxdist = 5.0
-        
-        # Calculate a distance matrix between every node to every other node
-        distances = cdist(points, points)
+
+        distances = cdist(points, points) # calculate euclidean distance between ALL nodes
         
         # Create two dictionaries
         graph = {}  # dictionary of each node, and the nodes it connects to
