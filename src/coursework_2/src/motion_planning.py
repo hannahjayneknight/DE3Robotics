@@ -5,7 +5,7 @@ from scipy.spatial.distance import cdist
 
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import Odometry 
 
 from map import generate_map, expand_map, DENIRO_width
 import matplotlib.pyplot as plt
@@ -201,7 +201,7 @@ class MotionPlanner():
         pos_force_direction = goal_vector / distance_to_goal
         
         # potential function
-        pos_force_magnitude = 1/np.power(distance_to_goal, 2)     # your code here!
+        pos_force_magnitude = 1/distance_to_goal **2 # squared term was used for the alternative 'quadratic' policy, for the original one the **2 is removed
         # tuning parameter
         K_att = 500.0     # tune this parameter to achieve desired results
         
@@ -223,7 +223,7 @@ class MotionPlanner():
         force_direction = obstacle_vector / distance_to_obstacle   # normalised vector (for direction)
         
         # potential function
-        force_magnitude = -1/np.power(distance_to_obstacle, 2)   # your code here!
+        force_magnitude = -1/distance_to_obstacle **2 # squared term was used for the alternative 'quadratic' policy, for the original one the **2 is removed
         # tuning parameter
         K_rep = 350.0     # tune this parameter to achieve desired results
         
