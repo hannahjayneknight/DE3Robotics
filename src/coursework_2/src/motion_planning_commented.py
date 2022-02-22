@@ -299,8 +299,8 @@ class MotionPlanner():
         return world_points
     
     def create_graph(self, points):
-        ############################################################### REPORT SECTION 5.2
-        # minimum and maximum distances between nodes have been tuned, described in section 5.2.1 
+        ############################################################### REPORT SECTION 5.2.1
+        # minimum and maximum distances between nodes have been tuned
         mindist = 1.0
         maxdist = 5.0
 
@@ -357,18 +357,14 @@ class MotionPlanner():
         return graph, distances_graph
     
     def check_collisions(self, pointA, pointB):
-        ############################################################### TASK E ii     
-        # Calculate the distance between the two point
-        distance = np.sqrt(np.power(pointA[0] - pointB[0], 2) + np.power(pointA[1] - pointB[1], 2))
-        # Calculate the UNIT direction vector pointing from pointA to pointB
-        direction = np.array([ (1/distance) * (pointB[0] - pointA[0]), (1/distance) * (pointB[1] - pointA[1])])
-        # Choose a resolution for collision checking
-        resolution = 0.0005   # resolution to check collision to in m
-        
-        # Create an array of points to check collisions at
-        edge_points = pointA.reshape((1, 2)) + np.arange(0, distance, resolution).reshape((-1, 1)) * direction.reshape((1, 2))
-        # Convert the points to pixels
-        edge_pixels = self.map_position(edge_points)
+        ############################################################### REPORT SECTION 5.2.2   
+        distance = np.sqrt(np.power(pointA[0] - pointB[0], 2) + np.power(pointA[1] - pointB[1], 2))  # Calculate the euclidean distance between the two point
+        direction = np.array([ (1/distance) * (pointB[0] - pointA[0]), (1/distance) * (pointB[1] - pointA[1])]) # Calculate the UNIT direction vector pointing from pointA to pointB
+        # resolution for collision checking (in m) has been tuned
+        resolution = 0.0005
+
+        edge_points = pointA.reshape((1, 2)) + np.arange(0, distance, resolution).reshape((-1, 1)) * direction.reshape((1, 2)) # array of points to check collisions at
+        edge_pixels = self.map_position(edge_points) # convert points from world position to map position 
         
         for pixel in edge_pixels:   # loop through each pixel between pointA and pointB
             collision = self.pixel_map[int(pixel[1]), int(pixel[0])]    # if the pixel collides with an obstacle, the value of the pixel map is 1
