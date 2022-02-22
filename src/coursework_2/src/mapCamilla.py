@@ -90,6 +90,7 @@ def main(task):
         print("------------------------------------------------------------")
         img, xscale, yscale = generate_map()
         plt.imshow(img, vmin=0, vmax=1, origin='lower')
+        #plt.set_cmap("Wistia") # changing the colour of the map
         plt.show()
     
     elif task == 'expand':
@@ -99,6 +100,7 @@ def main(task):
         img, xscale, yscale = generate_map()
         c_img = expand_map(img, DENIRO_width)
         plt.imshow(c_img, vmin=0, vmax=1, origin='lower')
+        #plt.set_cmap("Wistia") # changing the colour of the map
         plt.show()
         
     

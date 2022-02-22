@@ -1,11 +1,11 @@
-import numpy as np
+import numpy as np # importing external modules
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from scipy.ndimage.morphology import binary_dilation
 import rospy
 import sys
 
-rect_list = np.array([[0, -9, 2.5, 2],
+rect_list = np.array([[0, -9, 2.5, 2], # coordinates for obstacles
                     [8.75, -9.25, 2.75, 1.25],
                     [4.5, -5.5, 4, 2.75],
                     [-0.25, -1.0, 3.75, 2.0],
@@ -42,7 +42,7 @@ def generate_map():
     # Initialise the map to be an empty 2D array
     img = np.zeros([N_x, N_y], dtype = np.float)
 
-    for x1, y1, w, h in rect_list: # scaling rect_list
+    for x1, y1, w, h in rect_list: # scaling the obstacles
         x0 = int((x1 - w/2 - xmin) * scale)
         y0 = int((y1 - h/2 - ymin) * scale)
         x3 = int((x1 + w/2 - xmin) * scale)
@@ -51,45 +51,28 @@ def generate_map():
         # Fill the obstacles with 1s
         img[y0:y3, x0:x3] = 1
     return img, scale, scale
-    
-def create_circular_mask(h, w): # an alternative method for producing the circular map that does not use a nested for loop
-
-    center = (int(w/2), int(h/2)) # finding centre of image
-    radius = min(center[0], center[1], w-center[0], h-center[1]) # finding radius of image
-
-    Y, X = np.ogrid[:h, :w] # creating one vector for the rows and one for the columns 
-    dist_from_center = np.sqrt((X - center[0])**2 + (Y-center[1])**2) # pythag
-
-    mask = dist_from_center <= radius
-    
-    return mask
 
 def expand_map(img, robot_width):
     robot_px = int(robot_width * scale)   # size of the robot in pixels x axis
     
-    ############################################################### TASK A
+    ############################################################### REPORT SECTION 2.1
     robot_mask_sqaure = np.ones((robot_px, robot_px)) # create a square array of ones of the size of the robot
-    robot_mask_circular = create_circular_mask()# create a circular array of ones of the size of the robot
-    
-    expanded_img_square = binary_dilation(img, robot_mask_sqaure)
-    expanded_img_circular = binary_dilation(img, robot_mask_circular)
-    #return expanded_img_circular
+    expanded_img_square = binary_dilation(img, robot_mask_sqaure) # apply mask to the image
 
     ############################################################### REPORT SECTION 2.2
-    mask_width = 16
-    robot_mask = np.ones((mask_width, mask_width))
+    robot_circular_mask = np.ones((scale, scale)) # creating a 16x16 array to be filled
+    mask_radius = scale/2 # finding radius of circle
+    mask_centre = mask_radius + 0.5 # centre of circle is at 7.5 (between two elements in the array)
 
-    mask_radius = mask_width/2
+    for y, v_y in enumerate(robot_circular_mask): # loop through each row of robot_circular_mask. y=index, v_y=value
+        for x, v_x in enumerate(v_y): # loop through each element in each row
+            if (np.square(x - mask_centre) + np.square(y - mask_centre)) < np.square(mask_radius): # if element in the circle
+                robot_circular_mask[y, x] = 1
+            else: # element not in circle
+                robot_circular_mask[y, x] = 0
 
-    for y, v_y in enumerate(robot_mask):
-        for x, v_x in enumerate(v_y):
-            if (np.square(x - mask_radius + 0.5) + np.square(y - mask_radius + 0.5)) < 
-                                        np.square(mask_radius):
-                robot_mask[y, x] = 1
-            else:
-                robot_mask[y, x] = 0
-
-    expanded_img = binary_dilation(img, robot_circular_mask)
+    #print(robot_circular_mask)
+    expanded_img = binary_dilation(img, robot_circular_mask) # apply mask to the image
 
     return expanded_img
 
@@ -99,26 +82,24 @@ def main(task):
         print("============================================================")
         print("Generating the map")
         print("------------------------------------------------------------")
-        img, xscale, yscale = generate_map()
-        plt.imshow(img, vmin=0, vmax=1, origin='lower')
-        plt.show()
+        img, xscale, yscale = generate_map() # generating the non-expanded map
+        plt.imshow(img, vmin=0, vmax=1, origin='lower') # showing the non-expanded map
+        #plt.set_cmap("Wistia") # changing the colour of the map
+        plt.show() # showing the non-expanded map
     
     elif task == 'expand':
         print("============================================================")
         print("Generating the C-space map")
         print("------------------------------------------------------------")
-        img, xscale, yscale = generate_map()
-        c_img_circular = expand_map(img, DENIRO_width)
-        #plot1 = plt.figure(1)
-        #plt.imshow(c_img_square, vmin=0, vmax=1, origin='lower')
-        
-        #plot2 = plt.figure(2)
-        plt.imshow(c_img_circular, vmin=0, vmax=1, origin='lower')
+        img, xscale, yscale = generate_map() # generating the non-expanded map
+        c_img_circular = expand_map(img, DENIRO_width) # expanding the map
+        plt.imshow(c_img_circular, vmin=0, vmax=1, origin='lower') # showing the expanded map
+        #plt.set_cmap("Wistia") # changing the colour of the map
         plt.show()
         
     
 
-if __name__ == "__main__":
+if __name__ == "__main__": # if none of the options were chosen, the user is prompted to pick a task
     tasks = ['view', 'expand']
     if len(sys.argv) <= 1:
         print('Please include a task to run from the following options:\n', tasks)
