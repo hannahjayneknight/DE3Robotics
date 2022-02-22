@@ -14,45 +14,52 @@ import numpy as np
 import rospy
 import sys
 
-deniro_position = np.array([0, -6.0]) # starting position of DENIRO
-deniro_heading = 0.0 #????
+# initializing the robot
+deniro_position = np.array([0, -6.0]) # starting node of DENIRO to add to deniro_path
+deniro_heading = 0.0 # heading angle
 deniro_linear_vel = 0.0 # linear velocity of DENIRO
 deniro_angular_vel = 0.0 # angular velocity of DENIRO
 deniro_path = [] # array to collect all the points of DENIRO on his path
 
 map = generate_map() # generate 
 
-initial_position = np.array([0.0, -6.0])
-goal = np.array([8.0, 8.0])
+initial_position = np.array([0.0, -6.0]) # starting node of DENIRO
+goal = np.array([8.0, 8.0]) # goal node of DENIRO
 
 
-def deniro_odom_callback(msg):
+def deniro_odom_callback(msg): # nb: msg="odom"
     global deniro_position, deniro_heading, deniro_linear_vel, deniro_angular_vel
-    deniro_position = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y])
-    r = R.from_quat([msg.pose.pose.orientation.x,
+    deniro_position = np.array([msg.pose.pose.position.x, msg.pose.pose.position.y])# gets the position of DENIRO in the odometric frame
+    r = R.from_quat([msg.pose.pose.orientation.x, # orientations in each plane as a quaternion of DENIRO
                      msg.pose.pose.orientation.y,
                      msg.pose.pose.orientation.z,
                      msg.pose.pose.orientation.w])
-    deniro_heading = r.as_euler('xyz')[2]
-    deniro_linear_vel = np.sqrt(msg.twist.twist.linear.x ** 2 + msg.twist.twist.linear.y ** 2)
-    deniro_angular_vel = msg.twist.twist.angular.z
+    deniro_heading = r.as_euler('xyz')[2] # heading angle as a euler angle of DENIRO
+    deniro_linear_vel = np.sqrt(msg.twist.twist.linear.x ** 2 + msg.twist.twist.linear.y ** 2) # resultant linear velocity from x and y of DENIRO
+    deniro_angular_vel = msg.twist.twist.angular.z # angular velocity of DENIRO
 
 
-def set_vref_publisher():
-    rospy.init_node("motion_planning_node")
+def set_vref_publisher(): # publisher for DENIRO odometry
+    rospy.init_node("motion_planning_node") # initialize ROS node
 
-    wait = True
+    wait = True # waiting for rospy node to be initizaled
     while(wait):
         now = rospy.Time.now()
         if now.to_sec() > 0:
             wait = False
 
-    vref_topic_name = "/robot/diff_drive/command"
+    vref_topic_name = "/robot/diff_drive/command" # rostopic name
     #rostopic pub /robot/diff_drive/command geometry_msgs/Twist -r 10 -- '[0.0, 0.0, 0.0]' '[0.0, 0.0, -0.5]'
-    pub = rospy.Publisher(vref_topic_name, Twist, queue_size=1000)
+    pub = rospy.Publisher(vref_topic_name, Twist, queue_size=1000) # creating a rospy.Publisher. 
+    # NB:
+    # "Twist" breaks down velocity into angular and linear components
+    # queue_size is large due to the large number of commands that will be sent per sec 
     
     odom_topic_name = "odom"
-    sub = rospy.Subscriber(odom_topic_name, Odometry, deniro_odom_callback)
+    sub = rospy.Subscriber(odom_topic_name, Odometry, deniro_odom_callback) # creating a rospy.Subscriber
+    # NB:
+    # Odometry message content: http://docs.ros.org/en/melodic/api/nav_msgs/html/msg/Odometry.html
+    # when the "odom" message is received, the deniro_odom_callback() is invoked with the message as the first argument
     return pub
 
 
