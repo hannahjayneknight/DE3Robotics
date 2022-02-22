@@ -251,37 +251,30 @@ class MotionPlanner():
             complete = True
         return vref, complete
     
-    def generate_random_points(self, N_points):
-        ############################################################### TASK D
-        N_accepted = 0  # number of accepted samples
-        accepted_points = np.empty((1, 2))  # empty array to store accepted samples
-        rejected_points = np.empty((1, 2))  # empty array to store rejected samples
+    def generate_random_points(self, N_points): # N_points are the number of generated points in free space we want (==100 in this case)
+
+        ############################################################### REPORT SECTION 5.1.1
+        N_accepted = 0  # initializing the number of sample points that have already been accepted
+        accepted_points = np.empty((1, 2))  # empty array to store accepted samples == free space
+        rejected_points = np.empty((1, 2))  # empty array to store rejected samples == obstacles
         
-        while N_accepted < N_points:    # keep generating points until N_points have been accepted
+        while N_accepted < N_points: # keep generating points until N_points have been generated that are in free space (ie not in an obstacle)
         
-            points = np.random.uniform(-10, 10, (N_points - N_accepted, 2))  # generate random coordinates
-            pixel_points = self.map_position(points)    # get the point locations on our map
-            rejected = np.zeros(N_points - N_accepted)   # create an empty array of rejected flags
-            
-            # Your code here!
-            # Loop through the generated points and check if their pixel location corresponds to an obstacle in self.pixel_map
-            # self.pixel_map[px_y, px_x] = 1 when an obstacle is present
-            # Remember that indexing a 2D array is [row, column], which is [y, x]!
-            # You might have to make sure the pixel location is an integer so it can be used to index self.pixel_map
-            for i in range(len(pixel_points)):
-                
-                if self.pixel_map[int(pixel_points[i][1]), int(pixel_points[i][0])]:
-                    rejected[i] = 1
-                    
-                
-                
-            new_accepted_points = pixel_points[np.argwhere(rejected == 0)].reshape((-1, 2))
-            new_rejected_points = pixel_points[np.argwhere(rejected == 1)].reshape((-1, 2))
-            # keep an array of generated points that are accepted
-            accepted_points = np.vstack((accepted_points, new_accepted_points))
-            # keep an array of generated points that are rejected (for visualisation)
-            rejected_points = np.vstack((rejected_points, new_rejected_points))
-            N_accepted = accepted_points.shape[0] - 1     
+            points = np.random.uniform(-10, 10, (N_points - N_accepted, 2))  # generate an array containing between 0 and N_points random coordinates. x and y are between -10 and 10
+            pixel_points = self.map_position(points)    # convert points from world position to map position
+            rejected = np.zeros(N_points - N_accepted)   # create an empty array of rejected points
+
+            for i in range(len(pixel_points)): # loop through all the randomly generated pixel map points
+                if self.pixel_map[int(pixel_points[i][1]), int(pixel_points[i][0])]: # find the point in the pixel map, if the point is in an obstacle (ie True == 1), it is added to the rejected array....
+                    rejected[i] = 1 # point will be added to the rejected array. This can contain up to (N_points - N_accepted) points and any placeholders will be (0, 0)
+
+            new_accepted_points = pixel_points[np.argwhere(rejected == 0)].reshape((-1, 2)) # finding all accepted points (rejected == 0) in pixel_points and reshaping to be an array of points
+            new_rejected_points = pixel_points[np.argwhere(rejected == 1)].reshape((-1, 2)) # finding all rejected points (rejected == 1) in pixel_points and reshaping to be an array of points
+
+            accepted_points = np.vstack((accepted_points, new_accepted_points)) # update overall accepted_points with new_accepted_points at each run of the while loop
+            rejected_points = np.vstack((rejected_points, new_rejected_points)) # update overall rejected_points with new_rejected_points at each run of the while loop
+
+            N_accepted = accepted_points.shape[0] - 1 # update N_accepted and continue until N_accepted = N_points
         
         # throw away that first 'empty' point we added for initialisation
         accepted_points = accepted_points[1:, :]
