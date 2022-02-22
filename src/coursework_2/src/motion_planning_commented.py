@@ -87,7 +87,7 @@ class MotionPlanner():
         self.xscale, self.yscale = scale
         self.goal = goal
     
-    def send_velocity(self, vref): ####################################################################### NEED TO COMMENT FUNCTION!!!
+    def send_velocity(self, vref): # sending the velocity to DENIRO
         # vref is given in cartesian coordinates (v_x, v_y)
         # DE NIRO is driven in linear and angular coordinates (v_forward, omega)
         #print("px:\t", deniro_position[0], ",\tpy:\t", deniro_position[1])
