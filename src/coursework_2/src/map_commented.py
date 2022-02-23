@@ -62,7 +62,7 @@ def expand_map(img, robot_width):
     ############################################################### REPORT SECTION 2.2
     robot_circular_mask = np.ones((scale, scale)) # creating a 16x16 array to be filled
     mask_radius = scale/2 # finding radius of circle
-    mask_centre = mask_radius + 0.5 # centre of circle is at 7.5 (between two elements in the array)
+    mask_centre = mask_radius - 0.5 # centre of circle is at 7.5 (between two elements in the array)
 
     for y, v_y in enumerate(robot_circular_mask): # loop through each row of robot_circular_mask. y=index, v_y=value
         for x, v_x in enumerate(v_y): # loop through each element in each row
