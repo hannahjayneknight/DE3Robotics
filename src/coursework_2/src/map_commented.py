@@ -54,7 +54,7 @@ def expand_map(img, robot_width):
     
     ############################################################### REPORT SECTION 2.1
     robot_square_mask = np.ones((robot_px, robot_px))           # create a 16x16 array of ones as the square mask.
-    #expanded_img_square = binary_dilation(img, robot_square_mask) #------ uncomment to apply the square mask
+    #expanded_img = binary_dilation(img, robot_square_mask) #------ uncomment to apply the square mask
 
     ############################################################### REPORT SECTION 2.2
     robot_circular_mask = np.zeros((scale, scale))              # creating a 16x16 array to be filled
