@@ -5,7 +5,7 @@ from scipy.spatial.distance import cdist
 
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
-from nav_msgs.msg import Odometry 
+from nav_msgs.msg import Odometry
 
 from map import generate_map, expand_map, DENIRO_width
 import matplotlib.pyplot as plt
@@ -18,7 +18,6 @@ deniro_position = np.array([0, -6.0])
 deniro_heading = 0.0
 deniro_linear_vel = 0.0
 deniro_angular_vel = 0.0
-deniro_path = []
 
 map = generate_map()
 
@@ -79,14 +78,14 @@ class MotionPlanner():
         # vref is given in cartesian coordinates (v_x, v_y)
         # DE NIRO is driven in linear and angular coordinates (v_forward, omega)
         #print("px:\t", deniro_position[0], ",\tpy:\t", deniro_position[1])
-        print("gx:\t", goal[0], ",\tgy:\t", goal[1])
+        #print("gx:\t", goal[0], ",\tgy:\t", goal[1])
         print("vx:\t", vref[0], ",\tvy:\t", vref[1])
-        #print("deniro path:\t", deniro_path)
         v_heading = atan2(vref[1], vref[0])
         heading_error = deniro_heading - v_heading
         omega = 1 * heading_error
+        print(heading_error)
         # only drive forward if DE NIRO is pointing in the right direction
-        if abs(heading_error) < 0.1:
+        if abs(heading_error) < 0.2:
             v_forward = min(max(sqrt(vref[0]**2 + vref[1]**2), 0.1), 0.2)
         else:
             v_forward = 0
@@ -114,53 +113,44 @@ class MotionPlanner():
         rate = rospy.Rate(25)
         while not rospy.is_shutdown():
             vref, complete = planning_algorithm()
-            self.send_velocity(vref) # while rospy running, wil send velocity
-            deniro_path.append(deniro_position) #appending deniro's position to map later
-            
-            #if len(deniro_path) > 100:
-                #self.plot_map(deniro_path)
-            
-            if complete: # if reached the goal
+            self.send_velocity(vref)
+            if complete:
                 print("Completed motion")
-                #self.plot_map(deniro_path)
                 break
             rate.sleep()
     
     def setup_waypoints(self):
         ############################################################### TASK B
         # Create an array of waypoints for the robot to navigate via to reach the goal
-        waypoints = np.array([[4.3, -1.35],
-                              [6.0, -1.35],
-                              [7.8, 4.9]])  # fill this in with your waypoints
-
-        #waypoints = waypoints * self.xscale
+        # Note for report: map is -10.1 -> 10.1, but with 16 scale, it is -160.16 -> 160.16
+        waypoints = np.array([[2.0, -2.3],
+                              [3.12, 7.2]])  # waypoints in world coordinates
         
-        waypoints = np.vstack([initial_position, waypoints, self.goal])
+        
+        waypoints = np.vstack([initial_position, waypoints, self.goal]) # stack all the points to plot
+        
+        path_length = 0
+        
+        for i in range(len(waypoints)-1):
+            x_travelled, y_travelled = waypoints[i+1, 0]-waypoints[i, 0], waypoints[i+1, 1]-waypoints[i, 1]
+            print(x_travelled, y_travelled)
+            path_length += np.sqrt(np.power(x_travelled, 2) + np.power(y_travelled, 2))
+        
         pixel_goal = self.map_position(self.goal)
         pixel_waypoints = self.map_position(waypoints)
-        
+        print('Path length: ', path_length)
         print('Waypoints:\n', waypoints)
         print('Waypoints in pixel coordinates:\n', pixel_waypoints)
-        
-        distance = 0
-        prevval = [0.0, -6.0]
-        for val in waypoints:
-            vector = np.subtract(val, prevval)
-            distance += np.sqrt( sum( np.power(vector, 2) ) )
-            prevval = val
-            
-        print('Distance travelled: ', distance)
         
         # Plotting
         plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower')
         plt.scatter(pixel_waypoints[:, 0], pixel_waypoints[:, 1])
-        plt.title(distance)
         plt.plot(pixel_waypoints[:, 0], pixel_waypoints[:, 1])
+        plt.title('Path length: ' + str(path_length))
         plt.show()
         
         self.waypoints = waypoints
         self.waypoint_index = 0
-                    
     
     def waypoint_navigation(self):
         complete = False
@@ -190,7 +180,6 @@ class MotionPlanner():
     def potential_field(self):
         ############################################################### TASK C
         complete = False
-        route = []
         
         # compute the positive force attracting the robot towards the goal
         # vector to goal position from DE NIRO
@@ -201,9 +190,9 @@ class MotionPlanner():
         pos_force_direction = goal_vector / distance_to_goal
         
         # potential function
-        pos_force_magnitude = 1/distance_to_goal **2 # squared term was used for the alternative 'quadratic' policy, for the original one the **2 is removed
+        pos_force_magnitude = 1/np.square(distance_to_goal) # OUR CODE
         # tuning parameter
-        K_att = 500.0     # tune this parameter to achieve desired results
+        K_att = 500     # tune this parameter to achieve desired results
         
         # positive force
         positive_force = K_att * pos_force_direction * pos_force_magnitude  # normalised positive force
@@ -219,13 +208,14 @@ class MotionPlanner():
         obstacle_vector = obstacle_positions - deniro_position   # vector from DE NIRO to obstacle
         # distance to obstacle from DE NIRO
         distance_to_obstacle = np.linalg.norm(obstacle_vector, axis=1).reshape((-1, 1))  # magnitude of vector
+        print(distance_to_obstacle)
         # unit vector in direction of obstacle from DE NIRO
         force_direction = obstacle_vector / distance_to_obstacle   # normalised vector (for direction)
         
         # potential function
-        force_magnitude = -1/distance_to_obstacle **2 # squared term was used for the alternative 'quadratic' policy, for the original one the **2 is removed
+        force_magnitude = -1/np.square(distance_to_obstacle)
         # tuning parameter
-        K_rep = 350.0     # tune this parameter to achieve desired results
+        K_rep = 350    # tune this parameter to achieve desired results
         
         # force from an individual obstacle pixel
         obstacle_force = force_direction * force_magnitude
@@ -235,13 +225,12 @@ class MotionPlanner():
         
         # Uncomment these lines to visualise the repulsive force from each obstacle pixel
         # Make sure to comment it out again when you run the motion planner fully
-#        plotskip = 10   # only plots every 10 pixels (looks cleaner on the plot)
-#        plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower')
-#        plt.quiver(obstacle_pixel_coordinates[::plotskip, 0], obstacle_pixel_coordinates[::plotskip, 1],
-#                   obstacle_force[::plotskip, 0] * self.xscale, obstacle_force[::plotskip, 1] * self.yscale)
-#                   
-#        plt.show()
-        
+        #plotskip = 10   # only plots every 10 pixels (looks cleaner on the plot)
+        #plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower')
+        #plt.quiver(obstacle_pixel_coordinates[::plotskip, 0], obstacle_pixel_coordinates[::plotskip, 1],
+        #           obstacle_force[::plotskip, 0] * self.xscale, obstacle_force[::plotskip, 1] * self.yscale)
+        #plt.show()
+
         print("positive_force:", positive_force)
         print("negative_force:", negative_force)
         
@@ -253,50 +242,38 @@ class MotionPlanner():
             vref = np.array([0, 0])
             complete = True
         return vref, complete
-        
-    #def plot_map(self, points):
-        #points = np.vstack([initial_position, points, self.goal])
-        #pixel_goal = self.map_position(self.goal)
-        #pixel_waypoints = self.map_position(points)
-        #pixel_waypoints = points
-        
-        # Plotting
-        #plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower')
-        #plt.scatter(pixel_waypoints[:, :], pixel_waypoints[:, :])
-        #plt.title(distance)
-        #plt.plot(pixel_waypoints[:, :], pixel_waypoints[:, :])
-        #plt.show()
     
     def generate_random_points(self, N_points):
         ############################################################### TASK D
         N_accepted = 0  # number of accepted samples
-        accepted_points = np.empty((1, 2))  # empty array to store accepted samples
-        rejected_points = np.empty((1, 2))  # empty array to store rejected samples
         
-        while N_accepted < N_points:    # keep generating points until N_points have been accepted
+        # empty arrays to store accepted and rejected samples
+        accepted_points = np.empty((1, 2))
+        rejected_points = np.empty((1, 2))
         
-            points = np.random.uniform(-10, 10, (N_points - N_accepted, 2))  # generate random coordinates
-            pixel_points = self.map_position(points)    # get the point locations on our map
-            rejected = np.zeros(N_points - N_accepted)   # create an empty array of rejected flags
-            
-            # Your code here!
-            # Loop through the generated points and check if their pixel location corresponds to an obstacle in self.pixel_map
-            # self.pixel_map[px_y, px_x] = 1 when an obstacle is present
-            # Remember that indexing a 2D array is [row, column], which is [y, x]!
-            # You might have to make sure the pixel location is an integer so it can be used to index self.pixel_map
+        # generate points until there are N_points that have been accepted
+        while N_accepted < N_points:
+        
+            points = np.random.uniform(-10, 10, (N_points - N_accepted, 2))  # random coordinates
+            pixel_points = self.map_position(points)                         # locate them in the map
+            rejected = np.zeros(N_points - N_accepted)                       # empty array of rejected flags
+          
+            # for each generated point
             for i in range(len(pixel_points)):
-                
+            
+                # check whether the point is inside an obstacle in the map
                 if self.pixel_map[int(pixel_points[i][1]), int(pixel_points[i][0])]:
-                    rejected[i] = 1
-                    
-                
-                
+                    rejected[i] = 1                      # corresponding element is 1 in the rejected
+            
+            # sort the newly generated points
             new_accepted_points = pixel_points[np.argwhere(rejected == 0)].reshape((-1, 2))
             new_rejected_points = pixel_points[np.argwhere(rejected == 1)].reshape((-1, 2))
-            # keep an array of generated points that are accepted
+            
+            # keep arrays of generated points that are accepted and rejected (for visualisation)
             accepted_points = np.vstack((accepted_points, new_accepted_points))
-            # keep an array of generated points that are rejected (for visualisation)
             rejected_points = np.vstack((rejected_points, new_rejected_points))
+            
+            # update N_accepted and continue until N_accepted = N_points
             N_accepted = accepted_points.shape[0] - 1     
         
         # throw away that first 'empty' point we added for initialisation
@@ -323,7 +300,7 @@ class MotionPlanner():
     
     def create_graph(self, points):
         ############################################################### TASK E i
-        # Choose your minimum and maximum distances to produce a suitable graph
+        # Tuned minimum and maximum distances to produce an appropriate graph
         mindist = 1.0
         maxdist = 5.0
         
@@ -333,7 +310,7 @@ class MotionPlanner():
         # Create two dictionaries
         graph = {}  # dictionary of each node, and the nodes it connects to
         distances_graph = {}    # dictionary of each node, and the distance to each node it connects to
-        
+
         plt.imshow(self.pixel_map, vmin=0, vmax=1, origin='lower')  # setup a plot of the map
         
         for i in range(points.shape[0]):    # loop through each node
@@ -383,11 +360,11 @@ class MotionPlanner():
     def check_collisions(self, pointA, pointB):
         ############################################################### TASK E ii     
         # Calculate the distance between the two point
-        distance = np.sqrt(np.power(pointA[0] - pointB[0], 2) + np.power(pointA[1] - pointB[1], 2))
-        # Calculate the UNIT direction vector pointing from pointA to pointB
-        direction = np.array([ (1/distance) * (pointB[0] - pointA[0]), (1/distance) * (pointB[1] - pointA[1])])
-        # Choose a resolution for collision checking
-        resolution = 0.0005   # resolution to check collision to in m
+        distance = sqrt((pointB[0]-pointA[0])**2 + (pointB[1]-pointA[1])**2)
+        # Calculate the unit direction vector pointing from pointA to pointB
+        direction = np.multiply([pointB[0]-pointA[0], pointB[1]-pointA[1]], 1/distance)
+        # Tuned resolution for collision checking
+        resolution = 0.01   # resolution to check collision to in m
         
         # Create an array of points to check collisions at
         edge_points = pointA.reshape((1, 2)) + np.arange(0, distance, resolution).reshape((-1, 1)) * direction.reshape((1, 2))
@@ -407,7 +384,7 @@ class MotionPlanner():
         
         # Create a dataframe of unvisited nodes
         # Initialise each cost to a very high number
-        initial_cost = 1000000  # Set this to a suitable value
+        initial_cost = 1e6  # Set this to a suitable value
         
         unvisited = pd.DataFrame({'Node': nodes, 'Cost': [initial_cost for node in nodes], 'Previous': ['' for node in nodes]})
         unvisited.set_index('Node', inplace=True)
@@ -421,10 +398,10 @@ class MotionPlanner():
         # Take a look at the initial dataframes
         print('--------------------------------')
         print('Unvisited nodes')
-        print(unvisited)
-        print('s--------------------------------')
+        print(unvisited.head())
+        print('--------------------------------')
         print('Visited nodes')
-        print(visited)
+        print(visited.head())
         print('--------------------------------')
         print('Running Dijkstra')
         
@@ -448,7 +425,7 @@ class MotionPlanner():
                 if next_node_name not in visited.index.values:  # if we haven't visited this node before
                     
                     # update this to calculate the cost of going from the initial node to the next node via the current node
-                    next_cost_trial = current_cost + edge_cost # set this to calculate the cost of going from the initial node to the next node via the current node
+                    next_cost_trial = current_cost + edge_cost  # set this to calculate the cost of going from the initial node to the next node via the current node
                     next_cost = unvisited.loc[[next_node_name], ['Cost']].values[0] # the previous best cost we've seen going to the next node
                     
                     # if it costs less to go the next node from the current node, update then next node's cost and the path to get there
@@ -462,10 +439,10 @@ class MotionPlanner():
             
         print('--------------------------------')
         print('Unvisited nodes')
-        print(unvisited)
+        print(unvisited.head())
         print('--------------------------------')
         print('Visited nodes')
-        print(visited)
+        print(visited.head())
         print('--------------------------------')
         
         optimal_cost = visited.loc[[str(goal_node)], ['Cost']].values[0][0]  # Optimal cost (float)
