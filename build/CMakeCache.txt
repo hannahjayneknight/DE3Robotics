@@ -686,6 +686,12 @@ baxter_maintenance_msgs_DIR:PATH=/home/de3robotics/Desktop/DE3Robotics/devel/sha
 baxter_maintenance_msgs_SOURCE_DIR:STATIC=/home/de3robotics/Desktop/DE3Robotics/src/coursework_2/deniro_sim_ws/src/baxter_common/baxter_maintenance_msgs
 
 //Value Computed by CMake
+baxter_pykdl_BINARY_DIR:STATIC=/home/de3robotics/Desktop/DE3Robotics/build/coursework_3/baxter_pykdl
+
+//Value Computed by CMake
+baxter_pykdl_SOURCE_DIR:STATIC=/home/de3robotics/Desktop/DE3Robotics/src/coursework_3/baxter_pykdl
+
+//Value Computed by CMake
 baxter_sdk_BINARY_DIR:STATIC=/home/de3robotics/Desktop/DE3Robotics/build/coursework_2/deniro_sim_ws/src/baxter/baxter_sdk
 
 //Value Computed by CMake
@@ -1141,7 +1147,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=22
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=23
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
