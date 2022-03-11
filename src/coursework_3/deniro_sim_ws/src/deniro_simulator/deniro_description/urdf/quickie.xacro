@@ -1,0 +1,510 @@
+<?xml version="1.0" ?>
+<!-- Robot DE NIRO Mobile Base URDF -->
+<!-- Last Edited By : RS - 2021     -->
+
+<robot name="robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Arguments and Defaults-->
+  <gazebo>
+    <plugin filename="libgazebo_ros_control.so" name="ros_control">
+      <robotNamespace>/robot</robotNamespace>
+      <legacyModeNS>true</legacyModeNS>
+    </plugin>
+  </gazebo>  
+
+  <xacro:arg name="gazebo" default="false"/>
+
+  <gazebo reference="quickie_base">
+    <material>Gazebo/FlatBlack</material>
+  </gazebo>
+
+  <link name="quickie_base">
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0.0 -0.06"/>
+      <geometry>
+        <cylinder length="0.2" radius="0.21"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.0375 0.0 -0.15"/>
+      <geometry>
+        <box size="0.525 0.41 0.08"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+  </link>
+
+  <joint name="quickie_deniro" type="fixed">
+    <origin rpy="0 0 0" xyz="0.0 0.0 -0.1"/>
+    <parent link="base"/>
+    <child link="quickie_base"/>
+  </joint>
+
+  <joint name="quickie_fixed" type="fixed">
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
+    <parent link="quickie_base"/>
+    <child link="quickie"/>
+  </joint>
+
+
+  <link name="quickie">
+    <self_collide>true</self_collide>
+    <visual>
+      <origin rpy="1.5708 0 1.5708" xyz="0 0 -0.5575"/>
+      <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/No_Wheel_Quickie.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.5708 0 1.5708" xyz="0 0 -0.36"/>
+      <geometry>
+        <box size="0.6 0.5 0.3" />
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="1.5708 0 1.5708" xyz="0 0 -0.38"/>
+      <mass value="80" />
+      <inertia  ixx="11.233" ixy="0.0"  ixz="0.0"  iyy="10.83"  iyz="0.0"  izz="8.199" />
+      <!-- <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0" /> -->
+    </inertial>
+  </link>
+
+  <link name = "Bottom_Right_Holder">
+  	<visual>
+  	 	 <origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	 <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Bottom_Right_Holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+    <collision>
+       <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Bottom_Right_Holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="2" />
+      <inertia  ixx="0.06" ixy="0.0"  ixz="0.0"  iyy="0.06"  iyz="0.0"  izz="0.01" />
+    </inertial>
+  </link>
+
+  <link name = "Bottom_Left_Holder">
+  	<visual>
+  	 	 <origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	 <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Bottom_Left_Holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+       <collision>
+       <origin rpy="0 0 0" xyz="0 0 0"/>
+      <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Bottom_Left_Holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="2" />
+      <inertia  ixx="0.06" ixy="0.0"  ixz="0.0"  iyy="0.06"  iyz="0.0"  izz="0.01" />
+    </inertial>
+  </link>
+
+  <link name = "Top_Left_Holder">
+  	<visual>
+  	 	 <origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	 <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Top_Left_Holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+        <mesh filename="package://deniro_description/meshes/quickie/Top_Left_Holder.stl" scale="0.001 0.001 0.001"/>   
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="2" />
+      <inertia  ixx="0.06" ixy="0.0"  ixz="0.0"  iyy="0.06"  iyz="0.0"  izz="0.01" />
+    </inertial>
+  </link>    
+
+  <link name = "Top_Right_Holder">
+  	<visual>
+  	 	 <origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	 <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Top_Right_Holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+       <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Top_Right_Holder.stl" scale="0.001 0.001 0.001"/>
+      </geometry>    
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="2" />
+      <inertia  ixx="0.06" ixy="0.0"  ixz="0.0"  iyy="0.06"  iyz="0.0"  izz="0.01" />
+    </inertial>
+  </link>   
+
+  <link name = "Small_Bottom_Right_Wheel">
+  	<visual>
+  	 	<origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	<geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Small_Bottom_Right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.075"/>
+      </geometry>
+      <!-- <surface>
+         <friction>
+           <ode>
+          <mu>1/</mu>
+          </ode>
+        </friction>
+      </surface>  -->
+    </collision>
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.2" />
+      <inertia  ixx="0.0034125" ixy="0.0"  ixz="0.0"  iyy="0.00005625"  iyz="0.0"  izz="0.0034125" />
+    </inertial>
+  </link>
+
+  <link name = "Small_Bottom_Left_Wheel">
+  	 <visual>
+  	 	 <origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	 <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Small_Bottom_Left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+   <collision>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.075"/>
+      </geometry>
+    </collision>
+    <!-- <surface>
+      <friction>
+        <ode>
+          <mu>1/</mu>
+        </ode>
+      </friction>
+    </surface>      -->
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.2" />
+      <inertia  ixx="0.0034125" ixy="0.0"  ixz="0.0"  iyy="0.00005625"  iyz="0.0"  izz="0.0034125" />
+    </inertial>
+  </link>
+
+  <link name = "Small_Top_Right_Wheel">
+  	<visual>
+  	 	<origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	<geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Small_Top_Right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.085"/>
+      </geometry>
+    </collision>
+    <!-- <surface>
+      <friction>
+        <ode>
+         <mu>1/</mu>
+        </ode>
+      </friction>
+    </surface>   -->
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.2" />
+      <inertia  ixx="0.0034125" ixy="0.0"  ixz="0.0"  iyy="0.00005625"  iyz="0.0"  izz="0.0034125" />
+    </inertial>
+  </link>  
+
+  <link name = "Small_Top_Left_Wheel">
+  	<visual>
+  	 	 <origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	 <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Small_Top_Left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.085"/>
+      </geometry>
+    </collision>
+    <!-- <surface>
+      <friction>
+        <ode>
+         <mu>1/</mu>
+        </ode>
+      </friction>
+    </surface>   --> 
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="0.2" />
+      <inertia  ixx="0.0034125" ixy="0.0"  ixz="0.0"  iyy="0.00005625"  iyz="0.0"  izz="0.0034125" />
+    </inertial>
+  </link>
+        
+  <link name = "Large_Right_Wheel">      
+    <self_collide>true</self_collide>
+     <visual>
+  	 	 <origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	 <geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Large_Right.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.165"/>
+      </geometry>
+    </collision>
+    <surface>
+      <friction>
+        <torsional>
+          <coefficient>1.0</coefficient>
+          <surface_radius>0.5</surface_radius>
+          <use_patch_radius>false</use_patch_radius>
+        </torsional>
+      </friction>
+    </surface>   
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="200" />
+      <inertia  ixx="0.0034125" ixy="0.0"  ixz="0.0"  iyy="0.0005625"  iyz="0.0"  izz="0.0034125" />
+    </inertial>
+  </link> 
+
+  <link name = "Large_Left_Wheel">
+  	<visual>
+  	 	<origin rpy="0 0 0" xyz="0 0 0"/>
+  	 	<geometry>
+        <mesh filename="package://deniro_description/meshes/quickie/Large_Left.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="darkgray">
+        <color rgba=".2 .2 .2 1"/>
+      </material>
+    </visual>
+    <collision>
+      <origin rpy="1.57079632679 0 0" xyz="0 0 0"/>
+      <geometry>
+        <cylinder length="0.06" radius="0.165"/>
+      </geometry>
+    </collision>
+    <surface>
+      <friction>
+        <torsional>
+          <coefficient>1.0</coefficient>
+          <surface_radius>0.5</surface_radius>
+          <use_patch_radius>false</use_patch_radius>
+        </torsional>
+      </friction>
+    </surface>   
+    <inertial>
+      <origin rpy="0 0 0" xyz="0 0 0"/>
+      <mass value="200" />
+      <inertia  ixx="0.0025" ixy="0.0"  ixz="0.0"  iyy="0.0005625"  iyz="0.0"  izz="0.0025" />
+    </inertial>
+  </link> 
+
+  
+
+  <joint name="Bottom_Right_Holder_Joint" type="continuous">
+    <origin rpy="0 0 3.1415" xyz="-0.392 -0.2 -0.4615"/>
+    <parent link="quickie"/>
+    <child link="Bottom_Right_Holder"/>
+    <dynamics damping="0.10" friction="0.1"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="Bottom_Left_Holder_Joint" type="continuous">
+    <origin rpy="0 0 3.1415" xyz="-0.392 0.2 -0.465"/>
+    <parent link="quickie"/>
+    <child link="Bottom_Left_Holder"/>
+    <dynamics damping="0.1" friction="0.10"/>
+    <axis xyz="0 0 1"/>
+  </joint>   
+
+  <joint name="Top_Right_Holder_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0.3 -0.25 -0.445"/>
+    <parent link="quickie"/>
+    <child link="Top_Right_Holder"/>
+    <!-- <dynamics damping="0.1" friction="0.1"/> -->
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <joint name="Top_Left_Holder_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0.3 0.25 -0.445"/>
+    <parent link="quickie"/>
+    <child link="Top_Left_Holder"/>
+    <!-- <dynamics damping="0.1" friction="0.1"/> -->
+    <axis xyz="0 0 1"/>
+  </joint>    
+
+  <joint name="Small_Bottom_Right_Wheel_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0.045 0 -0.1"/>
+    <parent link="Bottom_Right_Holder"/>
+    <child link="Small_Bottom_Right_Wheel"/>
+    <!-- <dynamics damping="0.01" friction="0.1"/> -->
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint name="Small_Bottom_Left_Wheel_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0.045 0 -0.1"/>
+    <parent link="Bottom_Left_Holder"/>
+    <child link="Small_Bottom_Left_Wheel"/>
+    <!-- <dynamics damping="0.01" friction="0.1"/> -->
+    <axis xyz="0 1 0"/>
+  </joint>  
+
+  <joint name="Small_Top_Right_Wheel_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0.05 0 -0.1"/>
+    <parent link="Top_Right_Holder"/>
+    <child link="Small_Top_Right_Wheel"/>
+    <axis xyz="0 1 0"/>
+    <!-- <dynamics damping="0.01" friction="0.1"/> -->
+  </joint> 
+
+  <joint name="Small_Top_Left_Wheel_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="0.05 0 -0.1"/>
+    <parent link="Top_Left_Holder"/>
+    <child link="Small_Top_Left_Wheel"/>
+    <axis xyz="0 1 0"/>
+    <!-- <dynamics damping="0.1" friction="1"/> -->
+  </joint>    
+  
+  <joint name="Large_Right_Wheel_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.02 -0.27 -0.47"/>
+    <parent link="quickie"/>
+    <child link="Large_Right_Wheel"/>
+    <axis xyz="0 1 0"/>
+    <!-- <dynamics damping="0.01" friction="0.1"/> -->
+    <limit effort="100000" velocity="100"/>
+    <joint_properties damping="100.0" friction="10.0"/>
+  </joint>
+
+  <joint name="Large_Left_Wheel_Joint" type="continuous">
+    <origin rpy="0 0 0" xyz="-0.02 0.27 -0.47"/>
+    <parent link="quickie"/>
+    <child link="Large_Left_Wheel"/>
+    <axis xyz="0 1 0"/>
+    <!-- <dynamics damping="0.01" friction="0.1"/> -->
+    <limit effort="100000" velocity="100"/>
+    <joint_properties damping="100.0" friction="10.0"/>
+  </joint>
+
+<gazebo reference="quickie">
+  <material>Gazebo/DarkGrey</material>
+</gazebo>
+
+<gazebo reference="Small_Top_Right" >
+  <kd value="2"/>
+  <kp value="10"/>
+</gazebo> 
+
+<gazebo reference="Small_Top_Left" >
+<kd value="2"/>
+<kp value="10"/>
+
+</gazebo> 
+
+<gazebo reference="Small_Bottom_Right" >
+<kd value="2"/>
+<kp value="10"/>
+
+</gazebo> 
+
+<gazebo reference="Small_Bottom_Left" >
+<kd value="2"/>
+<kp value="10"/>
+
+</gazebo> 
+
+<gazebo reference="Large_Right" >
+<kd value="20"/>
+<kp value="100"/>
+</gazebo> 
+
+<gazebo reference="Large_Left" >
+<kd value="20"/>
+<kp value="100"/>
+</gazebo> 
+
+<gazebo>
+  <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+    <alwaysOn>true</alwaysOn>
+    <updateRate>100</updateRate>
+    <publishWheelTF>true</publishWheelTF>
+    <publishOdomTF>true</publishOdomTF>
+    <leftJoint>Large_Left_Wheel_Joint</leftJoint>
+    <rightJoint>Large_Right_Wheel_Joint</rightJoint>
+    <wheelSeparation>0.2030</wheelSeparation>
+    <wheelDiameter>0.350</wheelDiameter>
+    <torque>5000</torque>
+    <legacyMode>true</legacyMode>
+    <commandTopic>robot/diff_drive/command</commandTopic>
+    <odometryTopic>odom</odometryTopic>
+    <odometryFrame>odom</odometryFrame>
+    <robotBaseFrame>base</robotBaseFrame>
+  </plugin>
+</gazebo>
+
+
+<transmission name="Right_Wheel_trans">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Large_Right_Wheel_Joint">
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </joint>   
+  <actuator name="motor_rightwheel">
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<transmission name="Left_Wheel_trans">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Large_Left_Wheel_Joint">
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="motor_leftwheel">
+    <hardwareInterface>EffortJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+
+</robot>

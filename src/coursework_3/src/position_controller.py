@@ -7,7 +7,10 @@ import time
 import rospy
 import numpy as np
 import tf
-import baxter_interface
+
+
+#import baxter_interface
+
 from baxter_core_msgs.srv import (SolvePositionIK, SolvePositionIKRequest)
 from gazebo_msgs.srv import (SpawnModel, DeleteModel)
 from geometry_msgs.msg import (PoseStamped, Pose, Point, Quaternion)

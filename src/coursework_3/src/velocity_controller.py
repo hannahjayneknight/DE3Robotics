@@ -288,8 +288,8 @@ class VelocityController(b_pykdl.baxter_kinematics):
         ##########################
         ##### Task D
         # compute linear and angular velocities given P_des, P, delta_angle, r, and dt
-        dP = []  # linear displacement. Note that P_des is the desired end-effector position at the next time instant.
-        dw = np.array([0,0,0]) # angular displacement. To be edited only by groups for part ii
+        dP = (P_des - P)/dt  # linear velocity. Note that P_des is the desired end-effector position at the next time instant.
+        dw = r*delta_angle/dt # angular displacement. To be edited only by groups for part ii
         
         # twist is [linear velocity, angular velocity]
         twist = np.hstack((dP, dw))
@@ -297,18 +297,18 @@ class VelocityController(b_pykdl.baxter_kinematics):
         ##########################
         ##### Task E
         # compute Jacobian of the end-effector and solve velocity IK with pseudoinverse. Use self.jacobian() with joint_values as inputs
-        J_ee = self.jacobian([])    # your code here, replace [] with the correct variable
+        J_ee = self.jacobian(joint_values)    # your code here, replace [] with the correct variable
         J_ee = np.asarray(J_ee) # convert to np.array
 
-        J_pinv = DPinv([], eps=1e-10) # your code here, replace [] to compute the pseudoinverse of J_ee
-        qd = [] # your code here, replace [] with a matrix multiplication to compute joint velocities from twist
+        J_pinv = DPinv(J_ee, eps=1e-10) # your code here, replace [] to compute the pseudoinverse of J_ee
+        qd = np.matmul( J_pinv, twist ) # your code here, replace [] with a matrix multiplication to compute joint velocities from twist
 
         if nullspace_en:
             ##########################
             #####Task F
             # Compute projector into the ee Jacobian null space and joint velocity to reach desired configuration
             I = np.eye(nj)
-            Proj = []   # this is the null space projector, N. Replace [] with your calculation.
+            Proj = I - np.matmul( J_pinv, J_ee )  # the null space projector, N
 
             ##########################
             #####Task G part i
@@ -605,15 +605,15 @@ def main(task):
     ######################################################
     ## Task C:
     # fill in the desired poses
-    xyz_des_pick = []       # your code here!
-    xyz_des_circle = []     # your code here!
-    rpy_des = [-np.pi, 0, np.pi]  # this is used only for groups. For individuals it has no effect
+    xyz_des_pick =  [0.75, 0, 0.93]       # your code here!
+    xyz_des_circle =  [0.75, 0.1, 1.23]     # your code here!
+    rpy_des = [0.0, np.pi/2, 0]  # this is used only for groups. For individuals it has no effect
     if task == "go2pose":
         q = reachPose(Arm, q, xyz_des_pick, rpy_des)
 
     elif task == "path":
         q = reachPose(Arm, q, xyz_des_pick, rpy_des)
-        q = Circle(Arm, q, xyz_des_circl, rpy_des)
+        q = Circle(Arm, q, xyz_des_circle, rpy_des)
 
     elif task == "nullspace":
         q = reachPose(Arm, q, xyz_des_pick, rpy_des)
