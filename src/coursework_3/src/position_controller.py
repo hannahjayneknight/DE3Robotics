@@ -219,12 +219,12 @@ def main(task):
     # Example command to move the arms to a target pose with position control
     # Go to the starting Pose for left arm
     left_xyz = [0.5, 0.5, 0.25]
-    left_rpy = [0, 0, np.pi]    # Replace the roll, pitch, and yaw value with the correct value (in radians)
+    left_rpy = [3.111314, 0.047143, 2.858295]    # Replace the roll, pitch, and yaw value with the correct value (in radians)
     left_arm.servo_to_pose(left_xyz, left_rpy)
     
     # Go to the starting Pose for right arm
     right_xyz = [0.5, -0.5, 0.25]
-    right_rpy = [0, 0, np.pi]   # Replace the roll, pitch, and yaw value with the correct value (in radians)
+    right_rpy = [-3.111413, 0.047076, -2.858301]   # Replace the roll, pitch, and yaw value with the correct value (in radians)
     right_arm.servo_to_pose(right_xyz, right_rpy)
 
     if task == 'initPose':
