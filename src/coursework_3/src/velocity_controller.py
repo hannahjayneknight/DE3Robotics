@@ -252,13 +252,13 @@ class VelocityController(b_pykdl.baxter_kinematics):
         ############################
         # Task E:
         # Fill in the function to compute elbow Jacobian. Inputs are the joint values in KDL and the jacobian matrix
-        self._jac_kdl_link.JntToJac([], [])
+        self._jac_kdl_link.JntToJac(q_kdl, jacobian)
 
         J_link = self.kdl_to_mat(jacobian) # convert the jacobian from PyKDL format to numpy array
         
         # after computing the jacobian for the elbow, we need to convert it to a full size jacobian 
         J = np.zeros((6, nj_tot)) # Total Jacobain matrix. Fill in with J_link of elbow
-        J = []
+        J = J + J_link
 
         return J[0:3,:] # take only linear part of the jacobian
 
@@ -316,7 +316,7 @@ class VelocityController(b_pykdl.baxter_kinematics):
             # and sampling time dt
             q_desired = self.joint_des
 
-            qd2 = []    # replace [] with secondary joint velocities calculated from q_desired, joint_values, and sampling time dt.
+            qd2 = (q_desired - joint_values)/dt
             qd2 = 0.01 * qd2 # note that q_desired is the final joint configuration, so we artificially slow the speed down here (as if it is interpolating over a longer time period).
 
             ##########################
@@ -324,8 +324,8 @@ class VelocityController(b_pykdl.baxter_kinematics):
             J_elbow = self.link_jacobian(joint_values)
             
             # uncomment the lines below
-            # J_pinv_elbow = DPinv([], 1e-6)    # replace [] with the elbow Jacobian
-            # qd2 = []  # and replace [] with a matrix multiplication to compute secondary joint velocities given vel_elbow
+            J_pinv_elbow = DPinv(J_elbow, 1e-6)
+            qd2 = np.matmul( J_pinv_elbow,  vel_elbow)  # and replace [] with a matrix multiplication to compute secondary joint velocities given vel_elbow
 
 
 
