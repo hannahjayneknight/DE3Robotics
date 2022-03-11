@@ -231,28 +231,77 @@ def main(task):
         return
 
     elif task == 'pnp1':
-        # ========= ========= TASK B part ii ========= =========
-        # Find the way points trajectory 
-        # Trajectory : a sequence of robot EE pose (xyz, rpy), 
-        #              including the gripper state
-        # Task: Handling over brick task
-        # Execute the trajectory
-        # ========= ========= ============== ========= =========
-        # Your code here!
+        # Define the z value for the gripper above the brick
+        z_brick = 0.871095+0.192/2-0.93-0.1127/2
+        # brick_z_coord + brick_height/2 - base_z_coord - gripper_height/2
+
+        left_waypoints = [[0.75, 0.5, z_brick], [0.75,  0.5, 0], [0.75,  0, 0],
+                            [0.75, 0, z_brick], [0.75, 0, 0.25]]
+
+        # For the left arm
+        # Move above the brick on the blue circle
+        left_arm.servo_to_pose(left_waypoints[0], left_rpy)     # forwards and down
+        left_arm.gripper_close()                                # grab
+
+        # Move across to the red circle
+        left_arm.servo_to_pose(left_waypoints[1], left_rpy)     # up
+        left_arm.servo_to_pose(left_waypoints[2], left_rpy)     # right
+        left_arm.servo_to_pose(left_waypoints[3], left_rpy)     # down
+        left_arm.gripper_open()                                 # release
+
+        # Move back to initial position
+        left_arm.servo_to_pose(left_waypoints[4], left_rpy)     # up
+        left_arm.servo_to_pose(left_xyz, left_rpy)              # initial
+
+        # For the right arm
+        # Define waypoints for the right arm
+        right_waypoints = [[0.75, 0, 0.25], [0.75, 0, z_brick], [0.75,  0, 0], [0.75, -0.5, 0],
+                            [0.75, -0.5, z_brick], [0.75, -0.5, 0.25]]
+
+        # Move above the brick on the red circle
+        right_arm.servo_to_pose(right_waypoints[0], right_rpy)  # forwards and left
+        right_arm.servo_to_pose(right_waypoints[1], right_rpy)  # down
+        right_arm.gripper_close()                               # grab
+
+        # Move across to the green circle
+        right_arm.servo_to_pose(right_waypoints[2], right_rpy)  # up
+        right_arm.servo_to_pose(right_waypoints[3], right_rpy)  # right
+        right_arm.servo_to_pose(right_waypoints[4], right_rpy)  # down
+        right_arm.gripper_open()                                # release
+
+        # Move back to initial position
+        right_arm.servo_to_pose(right_waypoints[5], right_rpy)  # up
+        right_arm.servo_to_pose(right_xyz, right_rpy)           # initial
 
         return
 
     elif task == 'pnp2':
-        # ========= ========= TASK B part iii ========= =========
-        # ========= =========    Group Only   ========= =========
-        # Find the way points trajectory 
-        # Trajectory : a sequence of robot EE pose (xyz, rpy), 
-        #              including the gripper state
-        # Task: Handling over brick task without intermediate 
-        #       placement
-        # Execute the trajectory
-        # ========= ========= =============== ========= =========
-        # Your code here!
+        z_brick = 0.871095+0.192/2-0.93-0.1127/2
+        
+        left_xyz = [[0.75,  0.5, 0.25], [0.75, 0.5, z_brick], [0.75,  0.5, 0.12], [0.75,  0.1, 0.12], [0.75,  0.05, 0.12]]
+        left_rpy = [[0.01, np.pi, 0.01], [np.pi/2, np.pi, 0.01]]
+        right_xyz = [[0.75, -0.5, 0.12], [0.75, -0.05, 0.12], [0.75, -0.5, z_brick], [0.75, -0.5, 0.25]]
+        right_rpy = [[0.01, np.pi, 0.01], [-np.pi/2, np.pi, 0.01]]
+
+        left_arm.servo_to_pose(left_xyz[0], left_rpy[0]) # inital
+        left_arm.servo_to_pose(left_xyz[1], left_rpy[0]) # to brick
+        left_arm.gripper_close() # grab
+        left_arm.servo_to_pose(left_xyz[2], left_rpy[0]) # up
+        left_arm.servo_to_pose(left_xyz[2], left_rpy[1]) # then turn
+        left_arm.servo_to_pose(left_xyz[3], left_rpy[1]) # move to middle
+        right_arm.servo_to_pose(right_xyz[0], right_rpy[0]) # inital
+        right_arm.servo_to_pose(right_xyz[0], right_rpy[1]) # turn
+        right_arm.servo_to_pose(right_xyz[1], right_rpy[1]) # to brick
+        left_arm.servo_to_pose(left_xyz[4], left_rpy[1])
+        right_arm.gripper_close()
+        left_arm.gripper_open()
+        left_arm.servo_to_pose(left_xyz[0], left_rpy[1]) # carefully slot out of brick
+        left_arm.servo_to_pose(left_xyz[0], left_rpy[0]) # back to initial
+        right_arm.servo_to_pose(right_xyz[0], right_rpy[1]) # initial
+        right_arm.servo_to_pose(right_xyz[0], right_rpy[0]) # turn
+        right_arm.servo_to_pose(right_xyz[2], right_rpy[0]) # down
+        right_arm.gripper_open()
+        right_arm.servo_to_pose(right_xyz[3], right_rpy[0]) # initial
 
         return
    
