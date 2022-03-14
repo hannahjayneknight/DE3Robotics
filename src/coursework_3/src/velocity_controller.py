@@ -307,7 +307,7 @@ class VelocityController(b_pykdl.baxter_kinematics):
             ##########################
             #####Task F
             # Compute projector into the ee Jacobian null space and joint velocity to reach desired configuration
-            I = np.eye(nj)
+            I = np.eye(nj) # identity matrix 
             Proj = I - np.matmul( J_pinv, J_ee )  # the null space projector, N
 
             ##########################
