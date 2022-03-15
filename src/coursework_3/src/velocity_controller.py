@@ -29,7 +29,7 @@ def DPinv(J, eps=1e-06):
     I = np.identity(H.shape[0]) # identity matrix
     H = H + eps * I # a small value is added to J to make it non-singular
     J_pinv = np.matmul(J.T, np.linalg.pinv(H)) # multiply transpose of J with moore-penrose pseudo-inverse of H
-    return J_pinv # == pinv(J.T * J) * J.T
+    return J_pinv # == J.T * inv(J.T * J)
 
 #quat = np.array = qx,qy,qz,qw
 def quat2angax(quat):
@@ -171,7 +171,7 @@ class VelocityController(b_pykdl.baxter_kinematics):
         self.joint_des = np.array([-0.3824899 , -0.51624778, -1.03770004,  2.47872251,  2.94037957,
         1.85541637, -2.33059887])
 
-        # KDL Solvers for the secondary link (in this case, the elbow)
+        # KDL (Kinematics and Dynamics library) Solvers for the secondary link (in this case, the elbow)
         # Forward kinematics
         self._fk_p_kdl_link = PyKDL.ChainFkSolverPos_recursive(self._link_chain)
         self._fk_v_kdl_link = PyKDL.ChainFkSolverVel_recursive(self._link_chain)
@@ -189,17 +189,17 @@ class VelocityController(b_pykdl.baxter_kinematics):
 
     def link_forward_position_kinematics(self, joint_values=None):
         """ forward position kinematics for secondary link (in this case, the elbow) """
-        end_frame = PyKDL.Frame()
-        q_kdl = PyKDL.JntArray(joint_values.shape[0])
-        for i in range(joint_values.shape[0]):
-            q_kdl[i] = joint_values[i]
-        self._fk_p_kdl_link.JntToCart(q_kdl,
-                                 end_frame)
-        pos = end_frame.p
-        rot = PyKDL.Rotation(end_frame.M)
-        rot = rot.GetQuaternion()
-        return np.array([pos[0], pos[1], pos[2],
-                         rot[0], rot[1], rot[2], rot[3]]).reshape((self._num_jnts, 1))
+        end_frame = PyKDL.Frame() # get end-effector of robot
+        q_kdl = PyKDL.JntArray(joint_values.shape[0]) # initialize and array for the joints (pass in the number of joints)
+        for i in range(joint_values.shape[0]): # for each joint
+            q_kdl[i] = joint_values[i] # add it to the q_kdl array
+        self._fk_p_kdl_link.JntToCart(q_kdl, # forward kinematics to go from joint space to task space
+                                 end_frame) # pass in the joints and the end-effector
+        pos = end_frame.p # gets the position of the end-effector 
+        rot = PyKDL.Rotation(end_frame.M) # makes a 3x3 rotation matrix by passing in the orientation of the end-effector 
+        rot = rot.GetQuaternion() # transforms the rotation matrix describing the orientation of the end-effector from a 3x3 matrix to a quaternion 
+        return np.array([pos[0], pos[1], pos[2], 
+                         rot[0], rot[1], rot[2], rot[3]]).reshape((self._num_jnts, 1)) # returns a matrix containing the position and orientation info of the end-effector
 
     def move_to_joint_position(self, joint_values = np.zeros(7), timeout=15):
         """ move the arm to specified joint positions """
