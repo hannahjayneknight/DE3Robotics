@@ -286,7 +286,7 @@ class VelocityController(b_pykdl.baxter_kinematics):
         delta_angle, r = quat2angax(quat_err)   # angle and axis of error
 
         ##########################
-        ##### Task D
+        ##### Task D dfjkdsfjdskfjkds
         # compute linear and angular velocities given P_des, P, delta_angle, r, and dt
         dP = (P_des - P)/dt  # linear velocity. Note that P_des is the desired end-effector position at the next time instant.
         dw = r*delta_angle/dt # angular displacement. To be edited only by groups for part ii
