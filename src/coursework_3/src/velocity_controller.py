@@ -1,4 +1,4 @@
-import numpy as np
+import numpy as np # importing modules
 import PyKDL
 
 import rospy
@@ -24,12 +24,12 @@ rate = rospy.Rate(100)  # rate = 100 Hz
 ################################################
 #### AUXILIARY FUNCTIONS########################
 def DPinv(J, eps=1e-06):
-    """ Pseudo-inverse of J """
+    """ Pseudo-inverse of J """ # the RIGHT Moore–Penrose pseudo-inverse of J
     H = np.matmul(J,J.T)
-    I = np.identity(H.shape[0])
-    H = H + eps * I
-    J_pinv = np.matmul(J.T, np.linalg.pinv(H))
-    return J_pinv
+    I = np.identity(H.shape[0]) # identity matrix
+    H = H + eps * I # a small value is added to J to make it non-singular
+    J_pinv = np.matmul(J.T, np.linalg.pinv(H)) # multiply transpose of J with moore-penrose pseudo-inverse of H
+    return J_pinv # == pinv(J.T * J) * J.T
 
 #quat = np.array = qx,qy,qz,qw
 def quat2angax(quat):
