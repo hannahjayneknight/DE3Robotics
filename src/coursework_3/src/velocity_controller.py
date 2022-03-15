@@ -286,7 +286,7 @@ class VelocityController(b_pykdl.baxter_kinematics):
         delta_angle, r = quat2angax(quat_err)   # angle and axis of error
 
         ##########################
-        ##### Task D dfjkdsfjdskfjkds
+        ##### Task D 
         # compute linear and angular velocities given P_des, P, delta_angle, r, and dt
         dP = (P_des - P)/dt  # linear velocity. Note that P_des is the desired end-effector position at the next time instant.
         dw = r*delta_angle/dt # angular displacement. To be edited only by groups for part ii
@@ -602,22 +602,22 @@ def main(task):
     ######################################################
     ## Task C:
     # fill in the desired poses
-    xyz_des_pick =  [0.75, 0, 0.93]       # your code here!
-    xyz_des_circle =  [0.75, 0.1, 1.23]     # your code here!
-    rpy_des = [0.0, np.pi/2, 0]  # this is used only for groups. For individuals it has no effect
+    xyz_des_pick =  [0.75, 0, 0.93]       #Position coordinates for pickup brick
+    xyz_des_circle =  [0.75, 0.1, 1.23]     #Position coordinates for start of circular path motion
+    rpy_des = [0.0, np.pi/2, 0]  #End effector orientation for pickup brick (and remainder of tasks) in Euler angles
     if task == "go2pose":
-        q = reachPose(Arm, q, xyz_des_pick, rpy_des)
+        q = reachPose(Arm, q, xyz_des_pick, rpy_des) #Commands robot arm to move to brick pickup position
 
     elif task == "path":
-        q = reachPose(Arm, q, xyz_des_pick, rpy_des)
-        q = Circle(Arm, q, xyz_des_circle, rpy_des)
+        q = reachPose(Arm, q, xyz_des_pick, rpy_des) #Commands robot arm to move to brick pickup position
+        q = Circle(Arm, q, xyz_des_circle, rpy_des) #Commands robot arm to move to start of circle path
 
     elif task == "nullspace":
-        q = reachPose(Arm, q, xyz_des_pick, rpy_des)
-        q = Circle(Arm, q, xyz_des_circle, rpy_des)
+        q = reachPose(Arm, q, xyz_des_pick, rpy_des) #Commands robot arm to move to brick pickup position
+        q = Circle(Arm, q, xyz_des_circle, rpy_des) #Commands robot arm to move to start of circle path
 
         xyz_des_ns = xyz_des_circle
-        q = NullSpace(Arm, q, xyz_des_ns, rpy_des)
+        q = NullSpace(Arm, q, xyz_des_ns, rpy_des) #Commands robot arm to move to move out of the way of an obstacle
 
     print("TASK COMPLETED")
     delete_gazebo_models()
