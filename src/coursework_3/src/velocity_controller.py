@@ -627,7 +627,7 @@ def main(task):
 
 
 if __name__ == '__main__':
-    tasks = ['go2pose', 'path', 'nullspace']
+    tasks = ['go2pose', 'path', 'nullspace'] 
     if len(sys.argv) <= 1:
         print 'Please include a task to run from the following options:\n', tasks
     else:
