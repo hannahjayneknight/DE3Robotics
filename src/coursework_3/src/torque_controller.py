@@ -463,11 +463,11 @@ def main():
         z_omega = p[5][0]
     
         # External torque
-        ############################ TASK H i
+        ############################ TASK H i: Demolishing the wall (Section 5.1.1 in report)
         # Change external_force to make DE NIRO throw the brick into the wall (your code here)
         #external_force = np.array([0.2, -9.0, -0.8])                    # force to accelerate the end effector toward the wall
         
-        ############################ TASK H ii
+        ############################ TASK H ii: Demolishing the wall with backwards motion (Section 5.1.2 in report)
         y_max = 0.4   # furthermost point for the arm to reach backwards in the positive y-direction
         external_force = np.array([1.5, -9.0, -0.8])                    # force to accelerate the end effector toward the wall
         
@@ -594,7 +594,7 @@ def main():
         z_omega = p[5][0]
         
         external_torque = np.zeros((7, 1))
-        ############ TASK I
+        ############ TASK I: Cleaning the table (Section 5.2 in the report)
         if direction == 'right':
             # External force
             external_force = np.array([0.0,-5.0, -20.0, 0, 0, 0]).reshape((6, 1))                                       # force to push down and across on the table
