@@ -23,9 +23,9 @@ from std_msgs.msg import (Header, Empty, Float64MultiArray)
 DE_NIRO_height_offset = np.array([0, 0, 0.93])
 p0 = np.array([0.50, 0.60, 0.76])
 z_padding = 1e-2
-brick_width = 0.086 + 1e-2     # width of a brick
-brick_depth = 0.062 + 1e-2     # depth of a brick
-brick_height = 0.192 + 1e-2    # height of a brick
+brick_width = 0.086 + 1e-2                                  # width of a brick
+brick_depth = 0.062 + 1e-2                                  # depth of a brick
+brick_height = 0.192 + 1e-2                                 # height of a brick
 pos = p0 + np.array([0, 0, brick_depth/2 + z_padding])
 orientation = np.array([np.pi/2, np.pi/2, np.pi/2])
 brick_pose = (pos, orientation)
@@ -36,10 +36,10 @@ sponge_pose = (sponge_xyz, orientation)
 ################################################
 #### AUXILIARY FUNCTIONS########################
 def array_to_pose(xyz, rpy=None):
-    """ convert position and orientation to ROS message pose """
+    """ Convert position and orientation to ROS message pose """
     position = Point(x=xyz[0], y=xyz[1], z=xyz[2])
     if rpy is not None:
-        # convert roll pitch yaw to quaternion
+        # Convert roll pitch yaw to quaternion
         q = tf.transformations.quaternion_from_euler(rpy[0], rpy[1], rpy[2])
         orientation = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
         pose = Pose(position=position, orientation=orientation)
@@ -49,7 +49,7 @@ def array_to_pose(xyz, rpy=None):
 
 
 def load_tables():
-    """ load the tables and plates """
+    """ Load the tables and plates """
     poses = [Pose(position=Point(x=0.75, y=0.45, z=0.0)),
              Pose(position=Point(x=0.75, y=-0.45, z=0.0)),
              Pose(position=Point(x=0.75, y=0.5, z=0.78)),
@@ -75,7 +75,7 @@ def load_tables():
 
 
 def delete_tables():
-    """ delete the tables and plates """
+    """ Delete the tables and plates """
     models = ["cafe_table_1", "cafe_table_2", "pick_plate", "place_plate", "middle_plate"]
     for model in models:
         try:
@@ -86,27 +86,27 @@ def delete_tables():
 
 
 def load_wall():
-    """ load the wall to destroy """
-    p0 = np.array([0.35, -0.70, 0.76])  # position of the first brick
-    brick_width = 0.086 + 1e-2     # width of a brick
-    brick_depth = 0.062 + 1e-2     # depth of a brick
-    brick_height = 0.192 + 1e-2    # height of a brick
-    z_padding = 0.01    # add padding in the z direction
-    x_spacing = 0.1     # spacing between bricks in the x direction
-    N_rows = 4  # number of rows in the wall (1 row = 1 vertical brick and 1 horizontal brick on top of it)
-    N_cols = 6  # number of columns in the wall (1 column = 1 vertical brick, or 0.5 horizontal brick on top of it)
+    """ Load the wall to destroy """
+    p0 = np.array([0.35, -0.70, 0.76])                      # position of the first brick
+    brick_width = 0.086 + 1e-2                              # width of a brick
+    brick_depth = 0.062 + 1e-2                              # depth of a brick
+    brick_height = 0.192 + 1e-2                             # height of a brick
+    z_padding = 0.01                                        # add padding in the z direction
+    x_spacing = 0.1                                         # spacing between bricks in the x direction
+    N_rows = 4                                              # number of rows in the wall (1 row = 1 vertical brick and 1 horizontal brick on top of it)
+    N_cols = 6                                              # number of columns in the wall (1 column = 1 vertical brick, or 0.5 horizontal brick on top of it)
     poses = []
     names = []
     reference_frame = "world" 
     for i in range(N_rows):
-        # layer of | | | | | |
+        # Layer of | | | | | |
         for j in range(N_cols):
             xyz = p0 + np.array([x_spacing * j, 0, (brick_height + brick_width) * i + brick_height/2 + z_padding])
             rpy = np.array([0, 0, np.pi/2])
             pose = array_to_pose(xyz, rpy)
             poses.append(pose)
             names.append('brick' + str(i) + str(j))
-        # layer of  __ __ __
+        # Layer of  __ __ __
         for k in range(int(N_cols / 2)):
             xyz = p0 + np.array([x_spacing * (2 * k + 0.5), 0, (brick_height + brick_width) * (i + 1) - brick_width / 2])
             rpy = np.array([np.pi/2, 0, np.pi/2])
@@ -118,11 +118,11 @@ def load_wall():
         file = "Brick"
         model_xml = ''
         with open ("models/"+file+"/model.sdf", "r") as model_file:
-            # load xml from SDF
+            # Load xml from SDF
             model_xml=model_file.read().replace('\n', '')
         rospy.wait_for_service('/gazebo/spawn_sdf_model')
         try:
-            # spawn the model
+            # Spawn the model
             spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
             resp_sdf = spawn_sdf(name, model_xml, "/",
                                 pose, reference_frame)
@@ -131,7 +131,7 @@ def load_wall():
             pass 
 
 def delete_wall():
-    """ delete the wall """
+    """ Delete the wall """
     N_rows = 4
     N_cols = 6
     names = []
@@ -150,7 +150,7 @@ def delete_wall():
 
 
 def load_brick():
-    """ load the heavy brick used to demolish the wall """
+    """ Load the heavy brick used to demolish the wall """
     file = "Brick_Heavy"
     xyz, rpy = brick_pose
     pose = array_to_pose(xyz, rpy)
@@ -170,7 +170,7 @@ def load_brick():
 
 
 def delete_brick():
-    """ delete the heavy brick used to demolish the wall """
+    """ Delete the heavy brick used to demolish the wall """
     try:
         delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
         resp_delete = delete_model('brick_hit')
@@ -180,7 +180,7 @@ def delete_brick():
 
 
 def load_sponge():
-    """ load the sponge used to clean the table """
+    """ Load the sponge used to clean the table """
     file = "Sponge"
     xyz, rpy = sponge_pose
     pose = array_to_pose(xyz, rpy)
@@ -200,7 +200,7 @@ def load_sponge():
 
 
 def delete_sponge():
-    """ delete the sponge used to clean the table """
+    """ Delete the sponge used to clean the table """
     try:
         delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
         resp_delete = delete_model('sponge')
@@ -212,7 +212,7 @@ def delete_sponge():
 class BaxterArm(object):
     """ Class to operate the Baxter robot arm """
     def __init__(self, limb, verbose=True):
-        # initialise the arm
+        # Initialise the arm
         self._limb_name = limb 
         self._limb = baxter_interface.Limb(limb)
         self._gripper = baxter_interface.Gripper(limb)
@@ -221,36 +221,36 @@ class BaxterArm(object):
         rospy.wait_for_service(ns, 5.0)
         self._start_angles = np.zeros((7, 1))
         
-        # verbose flag (for greater detail when debugging)
+        # Verbose flag (for greater detail when debugging)
         self._verbose = verbose 
         
-        # enable the robot
+        # Enable the robot
         print("Getting robot state... ")
         self._rs = baxter_interface.RobotEnable(baxter_interface.CHECK_VERSION)
         self._init_state = self._rs.state().enabled
         print("Enabling robot... ")
         self._rs.enable()
         
-        # set up the kinematic solvers (PyKDL)
+        # Set up the kinematic solvers (PyKDL)
         self.kin = baxter_kinematics(limb)
     
     def ik_request(self, pose):
-        """ uses Baxter's internal inverse kinematics solver to calculate inverse position kinematics """
-        # set up the pose message sent to the solver
+        """ Uses Baxter's internal inverse kinematics solver to calculate inverse position kinematics """
+        # Set up the pose message sent to the solver
         hdr = Header(stamp=rospy.Time.now(), frame_id='base')
         ikreq = SolvePositionIKRequest()
         ikreq.pose_stamp.append(PoseStamped(header=hdr, pose=pose))
         try:
-            resp = self._iksvc(ikreq)   # send the pose to the solver, get response (resp)
+            resp = self._iksvc(ikreq)                                       # send the pose to the solver, get response (resp)
         except (rospy.ServiceException, rospy.ROSException), e:
             rospy.logerr("Service call failed: %s" % (e,))
             return False
             
         # Check if result valid, and type of seed ultimately used to get solution
-        # convert rospy's string representation of uint8[]'s to int's
+        # Convert rospy's string representation of uint8[]'s to int's
         resp_seeds = struct.unpack('<%dB' % len(resp.result_type), resp.result_type)
         limb_joints = {}
-        if (resp_seeds[0] != resp.RESULT_INVALID):  # check if the response is valid
+        if (resp_seeds[0] != resp.RESULT_INVALID):                          # check if the response is valid
             seed_str = {
                         ikreq.SEED_USER: 'User Provided Seed',
                         ikreq.SEED_CURRENT: 'Current Joint Angles',
@@ -274,7 +274,7 @@ class BaxterArm(object):
             return False
     
     def apply_torque(self, torques):
-        """ sets the joint torques of the robot arm """
+        """ Sets the joint torques of the robot arm """
         command_torques = {self._limb_name+'_s0': torques[0], 
                            self._limb_name+'_s1': torques[1], 
                            self._limb_name+'_e0': torques[2], 
@@ -285,7 +285,7 @@ class BaxterArm(object):
         self._limb.set_joint_torques(command_torques)
 
     def move_to_joint_position(self, joint_angles):
-        """ move the robot arm to given joint angles """
+        """ Move the robot arm to given joint angles """
         if joint_angles is not None:
             self._limb.move_to_joint_positions(joint_angles)
         else:
@@ -338,7 +338,7 @@ class BaxterArm(object):
         print 'w: ', np.around(quaternion[3], 4)
         print("------------------")
         
-        # set up the pose ROS message for the inverse kinematics solver
+        # Set up the pose ROS message for the inverse kinematics solver
         ik_pose = Pose()
         ik_pose.position.x = xyz[0]
         ik_pose.position.y = xyz[1]
@@ -349,9 +349,9 @@ class BaxterArm(object):
         ik_pose.orientation.w = quaternion[3]
 
         print '[ACTION] Finding inverse kinematic solution...'
-        joint_angles = self.ik_request(ik_pose)     # inverse kinematics from the solver
+        joint_angles = self.ik_request(ik_pose)                         # inverse kinematics from the solver
         print '[ACTION] Move the '+self._limb_name+' arm to the target pose!!!'
-        self.move_to_joint_position(joint_angles)   # move to these joint positions
+        self.move_to_joint_position(joint_angles)                       # move to these joint positions
         print '[INFO] Target pose is achieved!!!'
     
 
@@ -364,25 +364,25 @@ def main():
     
     # Load Gazebo Models via Spawning Services
     
-    # set up the control frequency and timing
+    # Set up the control frequency and timing
     freq = 1000.0  # Hz
     dt = 1/freq # s
     rate = rospy.Rate(freq)
     
     ################ Initialise baxter arms
     print "Initialising right arm"
-    # right arm
+    # Right arm
     right_arm = BaxterArm('right')
     right_arm.gripper_open()
     right_arm._limb.move_to_neutral()
     q_right, _, _ = right_arm.kin.current_robot_state()
     
-    # move the right arm competely out of the way
+    # Move the right arm competely out of the way
     q_right[0] -= 1.25
     right_arm.servo_to_joint_position(q_right)
     
     print "Initialising left arm"
-    # left arm
+    # Left arm
     left_arm = BaxterArm('left')
     left_arm.gripper_open()
     left_arm._limb.move_to_neutral()
@@ -390,11 +390,11 @@ def main():
     
     ################ load the objects
     print "Loading the environment"
-    load_tables()   # load two tables + plates in front of DE NIRO
+    load_tables()                                                       # load two tables + plates in front of DE NIRO
     print "Tables spawned"
-    load_wall()     # load the brick wall
+    load_wall()                                                         # load the brick wall
     print "Wall spawned"
-    load_brick()    # load the brick to knock down the wall with
+    load_brick()                                                        # load the brick to knock down the wall with
     print "Brick spawned"
     
     ################ initial position control movements
@@ -402,7 +402,7 @@ def main():
     # Move above the brick and open gripper
     xyz, _ = brick_pose
     rpy = np.array([-np.pi, 0, np.pi])
-    xyz = xyz + np.array([0, 0, 0.1]) - DE_NIRO_height_offset   # offset to account for DE NIRO's height
+    xyz = xyz + np.array([0, 0, 0.1]) - DE_NIRO_height_offset           # offset to account for DE NIRO's height
     left_arm.servo_to_pose(xyz, rpy)
     left_arm.gripper_open()
     rospy.sleep(1.0)
@@ -429,29 +429,31 @@ def main():
     
     # the y position to release the brick
     y_stop = -0.0
+    y_max = 0.5                                                         # furthermost point for the arm to reach backwards in the positive y-direction
     
     # initial time
     t_start = rospy.Time.now().to_sec()
     rate.sleep()
     
-    # the torque control demolition loop
+    throw = False                                                       # for Task Gii - don't start throwing the brick yet
+    # The torque control demolition loop
     print "Demolishing wall!"
     while not rospy.is_shutdown():
-        t = rospy.Time.now().to_sec() - t_start     # current time (since start of loop)
+        t = rospy.Time.now().to_sec() - t_start                         # current time (since start of loop)
         
-        # get current joint angles, joint velocities, joint torques
+        # Get current joint angles, joint velocities, joint torques
         q, q_dot, tau = left_arm.kin.current_robot_state()
         
-        # jacobian   
+        # Jacobian   
         J = left_arm.kin.jacobian()
         
-        # forward kinematics - get the current end effector position
+        # Forward kinematics - get the current end effector position
         p = left_arm.kin.forward_position_kinematics()
         x = p[0][0]
         y = p[1][0]
         z = p[2][0]
         
-        # forward velocity kinematics - get the current end effector velocity
+        # Forward velocity kinematics - get the current end effector velocity
         p_dot = np.matmul(J, q_dot)
         x_dot = p[0][0]
         y_dot = p[1][0]
@@ -460,15 +462,28 @@ def main():
         y_omega = p[4][0]
         z_omega = p[5][0]
     
-        # external torque
-        ############################ TASK H
-        # change external_force to make DE NIRO throw the brick into the wall (your code here)
-        external_force = np.array([0.0, 0.0, 0.0])            # force to accelerate the end effector toward the wall
+        # External torque
+        ############################ TASK H i
+        # Change external_force to make DE NIRO throw the brick into the wall (your code here)
+        #external_force = np.array([0.2, -9.0, -0.8])                    # force to accelerate the end effector toward the wall
         
-        position_error = np.array([x0 - x, y0 - y, z0 - z])     # position error
-        velocity_error = np.array([- x_dot, - y_dot, - z_dot])   # velocity error
+        ############################ TASK H ii
+        y_max = 0.4   # furthermost point for the arm to reach backwards in the positive y-direction
+        external_force = np.array([1.5, -9.0, -0.8])                    # force to accelerate the end effector toward the wall
         
-        # calculate the component of the error perpendicular to the external force
+        if y >= y0 + y_max and not throw:
+            # Start throwing
+            throw = True # start throwing
+            
+        elif not throw:
+            # Apply force to accelerate the end-effector backwards
+            external_force = np.array([0.0, 5, 0.0])
+         
+         
+        position_error = np.array([x0 - x, y0 - y, z0 - z])             # position error
+        velocity_error = np.array([- x_dot, - y_dot, - z_dot])          # velocity error
+        
+        # Calculate the component of the error perpendicular to the external force
         perpendicular_position_error = position_error - external_force * np.dot(position_error, external_force) / np.dot(external_force, external_force)
         perpendicular_velocity_error = velocity_error - external_force * np.dot(velocity_error, external_force) / np.dot(external_force, external_force)
 
@@ -481,44 +496,44 @@ def main():
         
         external_force = external_force + proportional_feedback + derivative_feedback
         
-        # convert the external force that the end effector is applying to joint torques
+        # Convert the external force that the end effector is applying to joint torques
         external_torque = np.matmul(J[:3].T, external_force.reshape((3, 1)))
         
-        # if the arm moves past the y point, open the gripper
+        # If the arm moves past the y point, open the gripper
         if y < y_stop + 0.1 and gripper_closed:
             left_arm.gripper_open()
             gripper_closed = False
         
-        # then stop the arm from moving
+        # Then stop the arm from moving
         if y < y_stop:
-            # external torque
+            # External torque
             external_force = np.zeros((3, 1))
-            # proportional and derivative control to stop the end effector from moving in x y z
+            # Proportional and derivative control to stop the end effector from moving in x y z
             external_force += 100.0 * np.array([x0 - x, y_stop - y, z0 - z]).reshape((3, 1))
             external_force += 10.0 * np.array([- x_dot, - y_dot, - z_dot]).reshape((3, 1))
-            external_torque = np.matmul(J[:3].T, external_force)    # just the position part of the jacobian (not orientation)
+            external_torque = np.matmul(J[:3].T, external_force)          # just the position part of the jacobian (not orientation)
             break
         
-        # apply the torques to the arm
+        # Apply the torques to the arm
         left_arm.apply_torque(external_torque)
         
-        # sleep
+        # Sleep
         rate.sleep()
     
-    ################ cleanup operation - for groups only
+    ################ Cleanup operation
     print "Cleaning up :("
-    # move the left arm back to neutral position, then move it out of the way
+    # Move the left arm back to neutral position, then move it out of the way
     left_arm.servo_to_joint_position(q_left)
     q_left[0] += 1.25
     left_arm.servo_to_joint_position(q_left)
     
-    # load the yellow sponge to clean the table
+    # Load the yellow sponge to clean the table
     load_sponge()
     
-    # move the right arm to neutral
+    # Move the right arm to neutral
     right_arm._limb.move_to_neutral()
     
-    # move the end effector above the sponge and open the gripper
+    # Move the end effector above the sponge and open the gripper
     xyz, _ = sponge_pose
     rpy = np.array([-np.pi, 0, np.pi])
     xyz = xyz + np.array([0, 0, 0.1]) - DE_NIRO_height_offset
@@ -526,7 +541,7 @@ def main():
     right_arm.gripper_open()
     rospy.sleep(1.0)
     
-    # move down and grasp the sponge
+    # Move down and grasp the sponge
     xyz = xyz + np.array([0, 0, -0.1])
     right_arm.servo_to_pose(xyz, rpy)
     right_arm.gripper_close()
@@ -534,42 +549,42 @@ def main():
     rospy.sleep(1.0)
     
     print "Wiping right"
-    # position of the end effector before starting wiping
+    # Position of the end effector before starting wiping
     p0 = right_arm.kin.forward_position_kinematics()
     x0 = p0[0][0]
     y0 = p0[1][0]
     z0 = p0[2][0]
     
-    # stopping points for the wiping motion    
+    # Stopping points for the wiping motion    
     y_left_stop = 0.5
     y_right_stop = -0.4
     
-    # starting direction to wipe
+    # Starting direction to wipe
     direction = 'right'
-    # counter for number of wipes completed
+    # Counter for number of wipes completed
     n_wipes = 0
     
-    # initial time
+    # Initial time
     t_start = rospy.Time.now().to_sec()
     rate.sleep()
     
-    # the torque control wiping loop
+    # The torque control wiping loop
     while not rospy.is_shutdown():
-        t = rospy.Time.now().to_sec() - t_start     # current time (since start of loop)
+        t = rospy.Time.now().to_sec() - t_start                           # current time (since start of loop)
         
-        # get current joint angles, joint velocities, joint torques
+        # Get current joint angles, joint velocities, joint torques
         q, q_dot, tau = right_arm.kin.current_robot_state()
         
-        # jacobian   
+        # Jacobian   
         J = right_arm.kin.jacobian()
         
-        # forward kinematics - get the current end effector position
+        # Forward kinematics - get the current end effector position
         p = right_arm.kin.forward_position_kinematics()
         x = p[0][0]
         y = p[1][0]
         z = p[2][0]
         
-        # forward velocity kinematics - get the current end effector velocity
+        # Forward velocity kinematics - get the current end effector velocity
         p_dot = np.matmul(J, q_dot)
         x_dot = p[0][0]
         y_dot = p[1][0]
@@ -579,54 +594,54 @@ def main():
         z_omega = p[5][0]
         
         external_torque = np.zeros((7, 1))
+        ############ TASK I
         if direction == 'right':
-            ############ TASK I
-            # external force (your code here)
-            external_force = np.array([0.0, 0.0, 0.0, 0, 0, 0]).reshape((6, 1))    # force to push down and across on the table
+            # External force
+            external_force = np.array([0.0,-5.0, -20.0, 0, 0, 0]).reshape((6, 1))                                       # force to push down and across on the table
             
-            # add proportional and derivative control to keep the end effector from deviating in the x direction
-            external_force += 400.0 * np.array([0.75 - x, 0.0, 0.0, 0.0, 0.0, 0.0]).reshape((6, 1))                 # proportional feedback
-            external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, 0.0, 0.0, 0.0]).reshape((6, 1))     # derivative feedback
+            # Add proportional and derivative control to keep the end effector from deviating in the x direction
+            external_force += 400.0 * np.array([0.75 - x, 0.0, 0.0, 0.0, 0.0, 0.0]).reshape((6, 1))                     # proportional feedback
+            external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, 0.0, 0.0, 0.0]).reshape((6, 1))         # derivative feedback
             
-            # convert the external force that the end effector is applying to joint torques
+            # Convert the external force that the end effector is applying to joint torques
             external_torque = np.matmul(J.T, external_force)
             
-            # if the y position goes behond the right hand limit, change direction
+            # If the y position goes behond the right hand limit, change direction
             if y < y_right_stop or t > 5:
                 direction = 'left'
                 t = 0
                 print 'Wiping left'
         
         if direction == 'left':
-            ############ TASK I (continued)
-            # external force (your code here)
-            external_force = np.array([0.0, 0.0, 0.0, 0, 0, 0]).reshape((6, 1))    # force to push down and across on the table
+            # External force
+            external_force = np.array([0.0, 5.0, -20.0, 0, 0, 0]).reshape((6, 1))                                       # force to push down and across on the table
             
-            # add proportional and derivative control to keep the end effector from deviating in the x direction
-            external_force += 400.0 * np.array([0.75 - x, 0.0, 0.0, 0.0, 0.0, 0.0]).reshape((6, 1))                 # proportional feedback
-            external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, 0.0, 0.0, 0.0]).reshape((6, 1))     # derivative feedback
+            # Add proportional and derivative control to keep the end effector from deviating in the x direction
+            external_force += 400.0 * np.array([0.75 - x, 0.0, 0.0, 0.0, 0.0, 0.0]).reshape((6, 1))                     # proportional feedback
+            #external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, -0.0, 0.0, 0.0]).reshape((6, 1))        # uncomment for derivative feedback for Task I(i)
+            external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, -x_omega, -y_omega, -z_omega]).reshape((6, 1))    # derivative feedback with omega_x for Task I(ii)
             
-            # convert the external force that the end effector is applying to joint torques
+            # Convert the external force that the end effector is applying to joint torques
             external_torque = np.matmul(J.T, external_force)
             
-            # if the y position goes beyond the left hand limit, change direction
+            # If the y position goes beyond the left hand limit, change direction
             if y > y_left_stop or t > 5:
                 direction = 'right'
                 print 'Wiping right'
                 t = 0
                 n_wipes += 1
         
-        # if the number of wipes goes beyond 2, stop the motion
+        # If the number of wipes goes beyond 2, stop the motion
         if n_wipes > 2:
             break
         
-        # apply the torques to the arm
+        # Apply the torques to the arm
         right_arm.apply_torque(external_torque)
 
-        # sleep
+        # Sleep
         rate.sleep()
     
-    # motion finished - move both arms out of the way
+    # Motion finished - move both arms out of the way
     right_arm.servo_to_joint_position(q_right)
     left_arm.servo_to_joint_position(q_left)  
     
@@ -650,4 +665,3 @@ if __name__ == "__main__":
         sys.exit()
     print 'Starting...'
     main()
-    
