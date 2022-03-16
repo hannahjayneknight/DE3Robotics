@@ -477,7 +477,7 @@ def main():
             
         elif not throw:
             # Apply force to accelerate the end-effector backwards
-            external_force = np.array([0.0, 5, 0.0])
+            external_force = np.array([0.0, 5.0, 0.0])
          
          
         position_error = np.array([x0 - x, y0 - y, z0 - z])             # position error
@@ -619,7 +619,7 @@ def main():
             # Add proportional and derivative control to keep the end effector from deviating in the x direction
             external_force += 400.0 * np.array([0.75 - x, 0.0, 0.0, 0.0, 0.0, 0.0]).reshape((6, 1))                     # proportional feedback
             #external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, -0.0, 0.0, 0.0]).reshape((6, 1))        # uncomment for derivative feedback for Task I(i)
-            external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, -x_omega, -y_omega, -z_omega]).reshape((6, 1))    # derivative feedback with omega_x for Task I(ii)
+            external_force += 20.0 * np.array([- x_dot, - y_dot * 0.2, - z_dot, -x_omega, 0, 0]).reshape((6, 1))    # derivative feedback with omega_x for Task I(ii)
             
             # Convert the external force that the end effector is applying to joint torques
             external_torque = np.matmul(J.T, external_force)
