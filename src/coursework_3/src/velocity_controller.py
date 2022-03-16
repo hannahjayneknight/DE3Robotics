@@ -203,9 +203,9 @@ class VelocityController(b_pykdl.baxter_kinematics):
 
     def move_to_joint_position(self, joint_values = np.zeros(7), timeout=15):
         """ move the arm to specified joint positions """
-        if joint_values.shape[0] > 0:
-            q = {self._limb_name+'_s0': joint_values[0],
-                            self._limb_name+'_s1': joint_values[1],
+        if joint_values.shape[0] > 0: # ensuring that a positive number of joints have been inputted
+            q = {self._limb_name+'_s0': joint_values[0], # left shoulder 
+                            self._limb_name+'_s1': joint_values[1], 
                             self._limb_name+'_e0': joint_values[2],
                             self._limb_name+'_e1': joint_values[3],
                             self._limb_name+'_w0': joint_values[4],
