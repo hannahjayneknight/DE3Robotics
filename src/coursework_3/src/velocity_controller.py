@@ -24,7 +24,7 @@ rate = rospy.Rate(100)  # rate = 100 Hz
 ################################################
 #### AUXILIARY FUNCTIONS########################
 def DPinv(J, eps=1e-06):
-    """ Pseudo-inverse of J """ # the RIGHT Moore–Penrose pseudo-inverse of J
+    """ Pseudo-inverse of J """ # the RIGHT Moore–Penrose pseudo-inverse of J (since there are more dof than required for tasks)
     H = np.matmul(J,J.T)
     I = np.identity(H.shape[0]) # identity matrix
     H = H + eps * I # a small value is added to J to make it non-singular
@@ -169,7 +169,7 @@ class VelocityController(b_pykdl.baxter_kinematics):
 
         self.joint_limits = np.array([0.0, -0.55, 0.0, 0.75, 0.0, 1.26, 0.0])
         self.joint_des = np.array([-0.3824899 , -0.51624778, -1.03770004,  2.47872251,  2.94037957,
-        1.85541637, -2.33059887])
+        1.85541637, -2.33059887]) # desired joint positions for Task G part i
 
         # KDL (Kinematics and Dynamics library) Solvers for the secondary link (in this case, the elbow)
         # Forward kinematics
@@ -576,6 +576,7 @@ def NullSpace(Arm,q,xyz_des,rpy_des = [0,0,0]):
 
 def main(task):
     
+    # tucking the arms. Run three times to account for errors in one of the tucks
     cmd = 'rosrun baxter_tools tuck_arms.py -u'
     os.system(cmd)
     cmd = 'rosrun baxter_tools tuck_arms.py -u'
@@ -583,6 +584,7 @@ def main(task):
     cmd = 'rosrun baxter_tools tuck_arms.py -u'
     os.system(cmd)
 
+    # sleep in between commands to make sure they have fully completed
     rospy.sleep(2)
 
     load_gazebo_models()
