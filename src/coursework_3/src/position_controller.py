@@ -166,7 +166,7 @@ class BaxterArm(object):
         print 'pitch:', np.around(rpy[1], 4)
         print 'yaw:', np.around(rpy[2], 4)
         roll, pitch, yaw = rpy
-        quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw)
+        quaternion = tf.transformations.quaternion_from_euler(roll, pitch, yaw) # calculating the quaternion from roll pitch and yaw
         print 'quaternion:' 
         print 'x: ', np.around(quaternion[0], 4)
         print 'y: ', np.around(quaternion[1], 4)
@@ -174,26 +174,27 @@ class BaxterArm(object):
         print 'w: ', np.around(quaternion[3], 4)
         print("------------------")
         
-        # set up the pose ROS message for the inverse kinematics solver
-        ik_pose = Pose()
-        ik_pose.position.x = xyz[0]
+        # setting up for the inverse kinematics solver
+        ik_pose = Pose() # initializing ROS message to send desired position and orientation of the end-effector
+        ik_pose.position.x = xyz[0] # setting the position based on whats passed into the function
         ik_pose.position.y = xyz[1]
         ik_pose.position.z = xyz[2] 
-        ik_pose.orientation.x = quaternion[0]
+        ik_pose.orientation.x = quaternion[0] # setting the orientation based on whats passed into the function
         ik_pose.orientation.y = quaternion[1]
         ik_pose.orientation.z = quaternion[2]
         ik_pose.orientation.w = quaternion[3]
 
         print '[ACTION] Finding inverse kinematic solution...'
-        joint_angles = self.ik_request(ik_pose)
+        joint_angles = self.ik_request(ik_pose) # inverse kinematics to find the joint angles for the end-effector to be in the desired position and orientation
         print '[ACTION] Move the '+self._limb_name+' arm to the target pose!!!'
-        self.move_to_joint_position(joint_angles)
+        self.move_to_joint_position(joint_angles) # moving to the desired position that was found from ik
         print '[INFO] Target pose is achieved!!!'
                         
 
 def main(task):
     print 'Initialitation...'
     try:
+        # tuck DENIRO's arms. Run three times in case it fails on one attempt
         cmd = 'rosrun baxter_tools tuck_arms.py -u'
         os.system (cmd)
         cmd = 'rosrun baxter_tools tuck_arms.py -u'
@@ -205,6 +206,7 @@ def main(task):
         print 'Terminating...'
         sys.exit()
     print 'Starting...'
+     # Delete Gazebo Models via Spawning Services
     delete_gazebo_models()
     # Load Gazebo Models via Spawning Services
     load_gazebo_models()
