@@ -219,6 +219,7 @@ def main(task):
     # Hint: Use the knowledge of 3D transformation 
     #       from lectures last term
     # ========= ========= ============= ========= =========
+    # Section 2.2.1 in report
     # Example command to move the arms to a target pose with position control
     # Go to the starting Pose for left arm
     left_xyz = [0.5, 0.5, 0.25]
@@ -241,6 +242,7 @@ def main(task):
         # Task: Handling over brick task
         # Execute the trajectory
         # ========= ========= ============== ========= =========
+        # Section 2.2.2 in report
         
         # Define the z value for the gripper above the brick
         z_brick = 0.861095+0.192/2-0.93-0.1127/2                # brick_z_coord + brick_height/2 - base_z_coord - gripper_height/2
@@ -286,7 +288,6 @@ def main(task):
 
     elif task == 'pnp2':
         # ========= ========= TASK B part iii ========= =========
-        # ========= =========    Group Only   ========= =========
         # Find the way points trajectory 
         # Trajectory : a sequence of robot EE pose (xyz, rpy), 
         #              including the gripper state
@@ -294,6 +295,7 @@ def main(task):
         #       placement
         # Execute the trajectory
         # ========= ========= =============== ========= =========
+        # Section 2.2.3 in report
         
         # Define the z value for the gripper above the brick
         z_brick = 0.871095+0.192/2-0.93-0.1127/2                # brick_z_coord + brick_height/2 - base_z_coord - gripper_height/2
