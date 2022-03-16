@@ -18,27 +18,28 @@ from std_msgs.msg import (Header, Empty)
 
 
 ################################################
-#### AUXILIARY FUNCTIONS########################
+#### AUXILIARY FUNCTIONS ########################
 def load_gazebo_models():
     """ load all the gazebo models used for this section of the coursework """
-    # poses to spawn the models
+    # Poses to spawn the models
     poses = [Pose(position=Point(x=0.75, y=0.45, z=0.0)),
              Pose(position=Point(x=0.75, y=-0.45, z=0.0)),
              Pose(position=Point(x=0.75, y=0.5, z=0.9)),
              Pose(position=Point(x=0.75, y=-0.5, z=0.9)),
              Pose(position=Point(x=0.75, y=0.0, z=0.9)),
              Pose(position=Point(x=0.75, y=0.5, z=0.88))]
-    # files locations of each model
+    # Files locations of each model
     files = ["cafe_table", "cafe_table",
              "pick_plate", "place_plate", 
              "middle_plate", "Brick"]
-    # names of each model for Gazebo
+    # Names of each model for Gazebo
     names = ["cafe_table_1", "cafe_table_2",
              "pick_plate", "place_plate", 
              "middle_plate", "brick"]
-    # reference frame for spawning the models
+    # Reference frame for spawning the models
     reference_frame = "world" 
 
+    # For each pose
     for pose, file, name in zip(poses,files,names):
         # Load xml from SDF
         model_xml = ''
@@ -55,9 +56,12 @@ def load_gazebo_models():
 
 
 def delete_gazebo_models():
-    """ delete all the gazebo models used for this section of the coursework """
+    """ Delete all the gazebo models used for this section of the coursework. """
+
     models = ["cafe_table_1", "cafe_table_2", "pick_plate", "place_plate", 
                 "middle_plate", "brick"]
+    
+    # For each model, delete it from the world space
     for model in models:
         try:
             delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
@@ -68,29 +72,30 @@ def delete_gazebo_models():
 
 class BaxterArm(object):
     """ Class to operate the Baxter robot arm """
+
     def __init__(self, limb, verbose=True):
-        # initialise the arm
-        self._limb_name = limb 
-        self._limb = baxter_interface.Limb(limb)
-        self._gripper = baxter_interface.Gripper(limb)
+        # Initialise the arm
+        self._limb_name = limb                                                          # name (string) of limb
+        self._limb = baxter_interface.Limb(limb)                                        # physical model of limb
+        self._gripper = baxter_interface.Gripper(limb)                                  # physical model of gripper
         ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
-        self._iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
-        rospy.wait_for_service(ns, 5.0)
+        self._iksvc = rospy.ServiceProxy(ns, SolvePositionIK)                           # call ROS service for solving the IK positions
+        rospy.wait_for_service(ns, 5.0)                                                 # wait for rospy service to be active
         
-        # verbose flag (for greater detail when debugging)
+        # Verbose flag (for greater detail when debugging)
         self._verbose = verbose 
         
-        # enable the robot
+        # Enable the robot
         print("Getting robot state... ")
-        self._rs = baxter_interface.RobotEnable(baxter_interface.CHECK_VERSION)
-        self._init_state = self._rs.state().enabled
+        self._rs = baxter_interface.RobotEnable(baxter_interface.CHECK_VERSION)         # read in the robot
+        self._init_state = self._rs.state().enabled                                     # initiate the robot limbs
         print("Enabling robot... ")
-        self._rs.enable()
-        self._limb.set_joint_position_speed(0.1)
+        self._rs.enable()                                                               # enable movement of the limbs
+        self._limb.set_joint_position_speed(0.1)                                        # set the speed of the joing positions
 
     def ik_request(self, pose):
-        """ uses Baxter's internal inverse kinematics solver to calculate inverse position kinematics """
-        # set up the pose message sent to the solver
+        """ Uses Baxter's internal inverse kinematics solver to calculate inverse position kinematics """
+        # Set up the pose message sent to the solver
         hdr = Header(stamp=rospy.Time.now(), frame_id='base')
         ikreq = SolvePositionIKRequest()
         ikreq.pose_stamp.append(PoseStamped(header=hdr, pose=pose))
